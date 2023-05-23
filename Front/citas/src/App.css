@@ -1,56 +1,52 @@
-.custom-loader {
-  width:50px;
-  height:50px;
-  --c:radial-gradient(farthest-side,#2e1ff9 92%,#0000);
-  background: 
-    var(--c) 50% 0,
-    var(--c) 50% 100%,
-    var(--c) 100% 50%,
-    var(--c) 0    50%;
-  background-size:12px 12px;
-  background-repeat:no-repeat;
-  animation:s7 1s infinite;
-}
-@keyframes s7 {to{transform: rotate(.5turn)}}
-
-.custom2 {
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  padding:1px;
-  background:conic-gradient(#0000 10%,#02B007) content-box;
-  -webkit-mask:
-    repeating-conic-gradient(#0000 0deg,#000 1deg 20deg,#0000 21deg 36deg),
-    radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 calc(100% - 8px));
-  -webkit-mask-composite: destination-in;
-  mask-composite: intersect;
-  animation:s4 0.5s infinite steps(10);
-}
-@keyframes s4 {to{transform: rotate(1turn)}}
-
-.load3 {
-  height:4px;
-   width:130px;
-   background:
-    linear-gradient(#ff0000 0 0),
-    linear-gradient(#ec4700 0 0),
-    #E4E4ED;
-  background-size: 60% 100%;
-  background-repeat: no-repeat;
-  animation: p6 3s infinite;
+.login-wrap {
+  position: relative;
+  background: #fff;
+  border-radius: 25px;
+  -webkit-box-shadow: 0px 10px 34px -15px rgba(0, 0, 0, 0.24);
+  -moz-box-shadow: 0px 10px 34px -15px rgba(0, 0, 0, 0.24);
+  box-shadow: 0px 10px 34px -15px rgba(0, 0, 0, 0.24);
 }
 
-@keyframes p6 {
-  0%   {background-position:-150% 0,-150% 0}
-  66%  {background-position: 250% 0,-150% 0}
-  100% {background-position: 250% 0, 250% 0}
+.login-wrap h3 {
+  font-weight: 300;
 }
 
-.load4 {
-  width:50px;
-  height:12px;
-  background: radial-gradient(circle closest-side,#e65618 90%,#0000) 0 0/33% 100% space;
-  clip-path: inset(0 100% 0 0);
-  animation:d1 1s steps(4) infinite;
+.login-wrap .icon {
+  width: 80px;
+  height: 80px;
+  background: #1089ff;
+  border-radius: 50%;
+  font-size: 30px;
+  margin: 0 auto;
+  margin-bottom: 10px;
 }
-@keyframes d1 {to{clip-path: inset(0 -34% 0 0)}}
+
+.login-wrap .icon span {
+  color: #fff;
+}
+
+.ftco-section {
+  padding: 4em 0;
+}
+
+.form-control {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-control button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: #ff0000; /* Reemplaza #ff0000 con el color deseado */
+  color: #ffffff; /* Reemplaza #ffffff con el color del texto deseado */
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.logo{
+  
+}
