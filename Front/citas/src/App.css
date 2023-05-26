@@ -26,7 +26,7 @@
 }
 
 .ftco-section {
-  padding: 4em 0;
+  padding: 5em 0;
 }
 
 .form-control {
@@ -47,6 +47,7 @@
   cursor: pointer;
 }
 
-.logo{
-  
+.logo {
+  width: 110px; /* Cambia el valor para ajustar el tamaño de la imagen */
+  height: auto; /* Ajusta la altura automáticamente para mantener la proporción */
 }

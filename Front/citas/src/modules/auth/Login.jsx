@@ -1,81 +1,92 @@
-import React from 'react'
-import {Form, Container, Row, Col, Button} from 'react-bootstrap';
-import Logo from '../../assets/Logo.jpeg'
+import React, { useEffect, useState } from "react";
+import { Form, Container, Row, Col, Button, InputGroup } from 'react-bootstrap';
+import FeatherIcon from "feather-icons-react";
+import fondo from "../../assets/Fondo.jpeg";
+import Logo from "../../assets/Logo.png";
 
 const Login = () => {
+
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const [buttonColor, setButtonColor] = useState('primary'); // Estado inicial del color del botón
+
+  const handleClick = () => {
+    setButtonColor('secondary'); // Cambiar el color del botón al hacer clic
+  };
+
+
   return (
-    <>
-      <section className="ftco-section">
+    <div style={{ 
+      backgroundImage: `url(${fondo})`,
+      backgroundSize: 'cover',
+      minHeight: '100vh',
+    }}>
+      <section className="vh-100 ftco-section">
         <Container>
           <Row className="justify-content-center">
             <Col md={7} lg={5}>
-              <Container className="login-wrap p-4 p-md-5">
-                <img src={Logo} alt="Logo" className='logo' />
-                <h3 className="text-center mb-5">CITAT</h3>
-                <Form className="login-form">
-                    <Form.Group className="mb-4" controlId="email">
-
-                      <Form.Control type="email" placeholder="Correo electrónico" />
-                    </Form.Group>
-                    <Form.Group className="mb-4">
-                      <Form.Control type="email" placeholder="Contraseña" />
-                    </Form.Group>
-
-                  <Form.Group >
-                    <Button className="form-control btn btn-primary mb-4">Login</Button>
-                  </Form.Group>
-                  <Form.Group className="d-md-flex">
-                    <div className="w-100">
-                      <a href="#">¿Olvidaste tu contraseña?</a>
+              <Container className="login-wrap p-4 p-md-5 align-items-center">
+                <Row className="align-items-center">
+                  <Col md={7} lg={5} className="mx-auto"> {/* Utiliza la clase "mx-auto" para centrar horizontalmente */}
+                    <div style={{ textAlign: 'center' }}> {/* Agrega "textAlign: 'center'" para centrar horizontalmente el contenido */}
+                      <img src={Logo} alt="Logo" className="logo mb-4" style={{ margin: '0 auto' }} /> {/* Aplica "margin: 0 auto" para centrar la imagen */}
                     </div>
-                  </Form.Group>
-                </Form>
+                  </Col>
+                </Row>
+                <Row>
+                  <Form className="login-form">
+                    <InputGroup className="mb-4" >
+                      <Form.Control
+                        type="text"
+                        /*onChange={(e) => setEmail(e.target.value)}*/
+                        placeholder="Correo institucional"
+                        aria-label="Username"
+                        aria-describedby="basic-addon1"
+                        style={{ borderRadius: '20px' }}
+                      />
+                    </InputGroup>
+                    <InputGroup className="mb-4">
+                      <Form.Control
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="*********"
+                        id="password"
+                        autoComplete="off"
+                        name="password"
+                        style={{ borderRadius: '20px' }}
+                      /*value={password}
+                      onChange={(e) => setPassword(e.target.value)}*/
+                      />
+                      <Button className="btn border border-1" style={{ backgroundColor: "white", borderLeft: "none", borderRadius: '20px' }} onClick={togglePassword}>
+                        <FeatherIcon style={{ stroke: 'gray' }} icon={showPassword ? 'eye-off' : 'eye'} />
+                      </Button>
+                    </InputGroup>
+                    <Button 
+                    className="form-control btn btn-primary mb-4"
+                      style={{ borderRadius: '20px' ,  background: '#264B99' }}
+                    >
+                      Iniciar Sesión
+                    </Button>
+                  </Form>
+                </Row>
+                <Row className="text-center">
+                  <Form>
+                    <Form.Group className="d-md-flex">
+                      <div className="w-100 text-align-center">
+                        <a href="#" style={{color: '#264B99'}}>¿Olvidaste tu contraseña?</a>
+                      </div>
+                    </Form.Group>
+                  </Form>
+                </Row>
               </Container>
             </Col>
           </Row>
         </Container>
       </section>
-      {/*<div className="container">
-        <div className="row px-3">
-          <div className="col-lg-10 col-xl-9 card flex-row mx-auto px-0">
-            <div className="card-body">
-              <h4 className="title text-center mt-4">
-                Login into account
-              </h4>
-              <form className="form-box px-3">
-                <div className="form-input">
-                  <span><i className="fa fa-envelope-o"></i></span>
+    </div>
 
-                </div>
-                <div className="form-input">
-                  <span><i className="fa fa-key"></i></span>
-
-                </div>
-
-                <div className="mb-3">
-                  <div className="custom-control custom-checkbox">
-
-                    <label className="custom-control-label" for="cb1">Remember me</label>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <button type="submit" className="btn btn-block text-uppercase">
-                    Login
-                  </button>
-                </div>
-
-                <div className="text-right">
-                  <a href="#" className="forget-link">
-                    Forget Password?
-                  </a>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-  </div>*/}
-    </>
   )
 }
 
