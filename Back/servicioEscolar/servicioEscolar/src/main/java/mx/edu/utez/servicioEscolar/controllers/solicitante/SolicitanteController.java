@@ -1,8 +1,8 @@
-package mx.edu.utez.servicioEscolar.controllers.admin;
+package mx.edu.utez.servicioEscolar.controllers.solicitante;
 
-import mx.edu.utez.servicioEscolar.dto.AdminDto;
-import mx.edu.utez.servicioEscolar.models.admin.Admin;
-import mx.edu.utez.servicioEscolar.services.AdminService;
+import mx.edu.utez.servicioEscolar.dto.SolicitanteDto;
+import mx.edu.utez.servicioEscolar.models.solicitante.Solicitante;
+import mx.edu.utez.servicioEscolar.services.SolicitanteService;
 import mx.edu.utez.servicioEscolar.utils.CustomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,50 +14,50 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/")
+@RequestMapping("/api/solicitantes/")
 @CrossOrigin(origins = {"*"})
-public class AdminController {
+public class SolicitanteController {
 
     @Autowired
-    private AdminService adminService;
+    private SolicitanteService solicitanteService;
 
     @GetMapping("/")
-    public ResponseEntity<CustomResponse<List<Admin>>> getAll(){
+    public ResponseEntity<CustomResponse<List<Solicitante>>> getAll(){
         return new ResponseEntity<>(
-                this.adminService.getAll(),
+                this.solicitanteService.getAll(),
                 HttpStatus.OK
         );
     }
 
    @GetMapping("/getActive")
-   public ResponseEntity<CustomResponse<List<Admin>>>
+   public ResponseEntity<CustomResponse<List<Solicitante>>>
    getAllActive(){
        return new ResponseEntity<>(
-               this.adminService.getAllActive(),
+               this.solicitanteService.getAllActive(),
                HttpStatus.OK
        );
    }
 
     @GetMapping("/getAllInactive")
-    public ResponseEntity<CustomResponse<List<Admin>>>
+    public ResponseEntity<CustomResponse<List<Solicitante>>>
     getAllInactive(){
         return new ResponseEntity<>(
-                this.adminService.getAllInactive(),
+                this.solicitanteService.getAllInactive(),
                 HttpStatus.OK
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponse<Admin>> getOne(@PathVariable("id") Long id) {
+    public ResponseEntity<CustomResponse<Solicitante>> getOne(@PathVariable("id") Long id) {
         return new ResponseEntity<>(
-                this.adminService.getOne(id),
+                this.solicitanteService.getOne(id),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/")
-    public ResponseEntity<CustomResponse<Admin>> insert(
-            @RequestBody @Valid AdminDto adminDto,
+    public ResponseEntity<CustomResponse<Solicitante>> insert(
+            @RequestBody @Valid SolicitanteDto solicitanteDto,
             @Valid BindingResult result
     ){
         if (result.hasErrors()) {
@@ -67,14 +67,14 @@ public class AdminController {
             );
         }
         return new ResponseEntity<>(
-                this.adminService.insert(adminDto.getAdmin()),
+                this.solicitanteService.insert(solicitanteDto.getSolicitante()),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<Admin>> update(
-            @RequestBody AdminDto adminDto,
+    public ResponseEntity<CustomResponse<Solicitante>> update(
+            @RequestBody SolicitanteDto solicitanteDto,
             @Valid BindingResult result
     ){
         if (result.hasErrors()) {
@@ -84,17 +84,18 @@ public class AdminController {
             );
         }
         return new ResponseEntity<>(
-                this.adminService.update(adminDto.getAdmin()),
+                this.solicitanteService.update(solicitanteDto.getSolicitante()),
                 HttpStatus.CREATED
         );
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
-             /*@Valid*/ @RequestBody AdminDto adminDto
+             @RequestBody
+    SolicitanteDto solicitanteDto
     ){
         return new ResponseEntity<>(
-                this.adminService.changeStatus(adminDto.getAdmin()),
+                this.solicitanteService.changeStatus(solicitanteDto.getSolicitante()),
                 HttpStatus.OK
         );
     }

@@ -5,8 +5,8 @@ import { StatusBar } from "expo-status-bar";
 export default function Login() {
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Login</Text>
-      <Text style={styles.subTitle}>Hola</Text>
+      <Text style={styles.titulo}>CITAT</Text>
+      <Text style={styles.subTitle}>únicamente para solicitantes</Text>
       <TextInput
       placeholder="Correo electrónico"
       style={styles.input}
@@ -15,20 +15,7 @@ export default function Login() {
       placeholder="Contraseña"
       style={styles.input}
       />
-      <Button
-          title="Iniciar sesión"
-          icon={
-            <Icon
-              type="material-community"
-              name="login"
-              size={22}
-              color="#fff"
-            />
-          }
-          buttonStyle={styles.logBtn}
-          containerStyle={styles.input}
-          
-        />
+      
       <StatusBar style="auto"/>
     </View>
   );

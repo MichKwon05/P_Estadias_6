@@ -1,8 +1,8 @@
-package mx.edu.utez.servicioEscolar.controllers.admin;
+package mx.edu.utez.servicioEscolar.controllers.ventanilla;
 
-import mx.edu.utez.servicioEscolar.dto.AdminDto;
-import mx.edu.utez.servicioEscolar.models.admin.Admin;
-import mx.edu.utez.servicioEscolar.services.AdminService;
+import mx.edu.utez.servicioEscolar.dto.VentanillaDto;
+import mx.edu.utez.servicioEscolar.models.ventanilla.Ventanilla;
+import mx.edu.utez.servicioEscolar.services.VentanillaService;
 import mx.edu.utez.servicioEscolar.utils.CustomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,50 +14,50 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/")
+@RequestMapping("/api/ventanillas/")
 @CrossOrigin(origins = {"*"})
-public class AdminController {
+public class VentanillaController {
 
     @Autowired
-    private AdminService adminService;
+    private VentanillaService ventanillaService;
 
     @GetMapping("/")
-    public ResponseEntity<CustomResponse<List<Admin>>> getAll(){
+    public ResponseEntity<CustomResponse<List<Ventanilla>>> getAll(){
         return new ResponseEntity<>(
-                this.adminService.getAll(),
+                this.ventanillaService.getAll(),
                 HttpStatus.OK
         );
     }
 
    @GetMapping("/getActive")
-   public ResponseEntity<CustomResponse<List<Admin>>>
+   public ResponseEntity<CustomResponse<List<Ventanilla>>>
    getAllActive(){
        return new ResponseEntity<>(
-               this.adminService.getAllActive(),
+               this.ventanillaService.getAllActive(),
                HttpStatus.OK
        );
    }
 
     @GetMapping("/getAllInactive")
-    public ResponseEntity<CustomResponse<List<Admin>>>
+    public ResponseEntity<CustomResponse<List<Ventanilla>>>
     getAllInactive(){
         return new ResponseEntity<>(
-                this.adminService.getAllInactive(),
+                this.ventanillaService.getAllInactive(),
                 HttpStatus.OK
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponse<Admin>> getOne(@PathVariable("id") Long id) {
+    public ResponseEntity<CustomResponse<Ventanilla>> getOne(@PathVariable("id") Long id) {
         return new ResponseEntity<>(
-                this.adminService.getOne(id),
+                this.ventanillaService.getOne(id),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/")
-    public ResponseEntity<CustomResponse<Admin>> insert(
-            @RequestBody @Valid AdminDto adminDto,
+    public ResponseEntity<CustomResponse<Ventanilla>> insert(
+            @RequestBody @Valid VentanillaDto ventanillaDto,
             @Valid BindingResult result
     ){
         if (result.hasErrors()) {
@@ -67,14 +67,14 @@ public class AdminController {
             );
         }
         return new ResponseEntity<>(
-                this.adminService.insert(adminDto.getAdmin()),
+                this.ventanillaService.insert(ventanillaDto.getVentanilla()),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<Admin>> update(
-            @RequestBody AdminDto adminDto,
+    public ResponseEntity<CustomResponse<Ventanilla>> update(
+            @RequestBody VentanillaDto ventanillaDto,
             @Valid BindingResult result
     ){
         if (result.hasErrors()) {
@@ -84,17 +84,18 @@ public class AdminController {
             );
         }
         return new ResponseEntity<>(
-                this.adminService.update(adminDto.getAdmin()),
+                this.ventanillaService.update(ventanillaDto.getVentanilla()),
                 HttpStatus.CREATED
         );
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
-             /*@Valid*/ @RequestBody AdminDto adminDto
+             @RequestBody
+    VentanillaDto ventanillaDto
     ){
         return new ResponseEntity<>(
-                this.adminService.changeStatus(adminDto.getAdmin()),
+                this.ventanillaService.changeStatus(ventanillaDto.getVentanilla()),
                 HttpStatus.OK
         );
     }

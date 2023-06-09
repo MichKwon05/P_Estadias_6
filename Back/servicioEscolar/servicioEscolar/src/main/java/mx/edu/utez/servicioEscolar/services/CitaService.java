@@ -1,8 +1,7 @@
 package mx.edu.utez.servicioEscolar.services;
 
-
-import mx.edu.utez.servicioEscolar.models.admin.Admin;
-import mx.edu.utez.servicioEscolar.models.admin.AdminRepository;
+import mx.edu.utez.servicioEscolar.models.cita.Cita;
+import mx.edu.utez.servicioEscolar.models.cita.CitaRepository;
 import mx.edu.utez.servicioEscolar.utils.CustomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,49 +13,50 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class AdminService {
+public class CitaService {
+
     @Autowired
-    private AdminRepository adminRepository;
+    private CitaRepository citaRepository;
 
     @Transactional(readOnly = true)
-    public CustomResponse<List<Admin>> getAll(){
+    public CustomResponse<List<Cita>> getAll(){
         return new CustomResponse<>(
-                this.adminRepository.findAll(),
+                this.citaRepository.findAll(),
                 false,
                 200,
                 "ok"
         );
     }
 
-    ///Servicio para los activos
+    ///Servicio para las citas activas
     @Transactional(readOnly = true)
-    public  CustomResponse<List<Admin>> getAllActive(){
+    public  CustomResponse<List<Cita>> getAllActive(){
         return new CustomResponse<>(
-                this.adminRepository.findAllByStatus(true),
+                this.citaRepository.findAllByStatus(true),
                 false,
                 200,
                 "ok"
         );
     }
 
-    ///Servicio para los inactivos
+    ///Servicio para las citas inactivas
     @Transactional(readOnly = true)
-    public  CustomResponse<List<Admin>> getAllInactive(){
+    public  CustomResponse<List<Cita>> getAllInactive(){
         return new CustomResponse<>(
-                this.adminRepository.findAllByStatus(false),
+                this.citaRepository.findAllByStatus(false),
                 false,
                 200,
                 "ok"
         );
     }
 
-    ///Servicio para buscar uno
-    @Transactional(readOnly = true)
-    public CustomResponse<Admin> getOne(Long id) {
-        Optional<Admin> adminOptional = this.adminRepository.findById(id);
-        if (adminOptional.isPresent()) {
+    ///Servicio para buscar una cita
+    @Transactional (readOnly = true)
+    public CustomResponse<Cita> getOne(Long id) {
+        Optional<Cita> citaOptional = this.citaRepository.findById(id);
+        if (citaOptional.isPresent()) {
             return new CustomResponse<>(
-                    adminOptional.get(),
+                    citaOptional.get(),
                     false,
                     200,
                     "ok"
@@ -66,71 +66,67 @@ public class AdminService {
                     null,
                     true,
                     404,
-                    "Administrador no encontrada"
+                    "Cita no encontrada"
             );
         }
     }
 
-    //Servicio para insertar
+    ///Servicio para insertar una cita
     @Transactional (rollbackFor = {SQLException.class})
-    public CustomResponse<Admin> insert(Admin admin){
-        if (this.adminRepository.existsByCorreoAdmin(admin.getCorreoAdmin())) {
+    public CustomResponse<Cita> insert(Cita cita){
+        /*if (this.citaRepository.existsByCorreoAdmin(admin.getCorreoAdmin())) {
             return new CustomResponse<>(
                     null,
                     true,
                     400,
                     "El correo ya existe"
             );
-        }
+        }*/
         return new CustomResponse<>(
-                this.adminRepository.saveAndFlush(admin),
+                this.citaRepository.saveAndFlush(cita),
                 false,
                 200,
-                "Administrador registrado correctamente"
+                "Cita registrada correctamente"
         );
     }
 
-    //Servicio para actualizar
+    //Servicio actualizar
     @Transactional (rollbackFor = {SQLException.class})
-    public  CustomResponse<Admin> update(Admin admin){
-        if (!this.adminRepository.existsById(admin.getId())) {
+    public  CustomResponse<Cita> update(Cita cita){
+        if(!this.citaRepository.existsById(cita.getId())) {
             return new CustomResponse<>(
                     null,
                     true,
                     400,
-                    "El administrador no existe"
+                    "Cita no encontrada"
             );
         }
         return new CustomResponse<>(
-                this.adminRepository.saveAndFlush(admin),
+                this.citaRepository.saveAndFlush(cita),
                 false,
                 200,
-                "Administrador actualizado correctamente"
+                "Cita actualizada correctamente"
         );
     }
 
-    //Servicio para cambiar el status
+    //Servicio para cambiar status
     @Transactional (rollbackFor = {SQLException.class})
-    public CustomResponse<Boolean> changeStatus(Admin admin){
-        if (!this.adminRepository.existsById(admin.getId())) {
+    public CustomResponse<Boolean> changeStatus(Cita cita){
+        if (!this.citaRepository.existsById(cita.getId())) {
             return new CustomResponse<>(
                     null,
                     true,
                     400,
-                    "El administrador no existe"
+                    "Cita no encontrada"
             );
         }
         return new CustomResponse<>(
-                this.adminRepository.updateStatusById(admin.getStatus(), admin.getId()
-                ) == 1,
+                this.citaRepository.updateStatusById(
+                        cita.getStatus(), cita.getId()
+                )==1,
                 false,
                 200,
-                "Se ha cambiado el status del usuario Departamento"
+                "Se ha cambiado el status de la cita"
         );
     }
-
-    public Admin findByCorreoAdmin(String correoAdmin){
-        return this.adminRepository.findByCorreoAdmin(correoAdmin);
-    }
-
 }

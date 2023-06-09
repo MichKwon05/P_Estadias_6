@@ -44,7 +44,6 @@ public class Admin {
     private String correoAdmin;
     @Column(name = "passwordAdmin", nullable = false)
     private String passwordAdmin;
-
     @Column(nullable = false, columnDefinition = "tinyint default 1")
     private Boolean status;
 
