@@ -24,6 +24,7 @@ public class SolicitanteDto {
     private String apeMaterno;
     private String apePaterno;
     private String correo;
+    private String passwordSoli;
     private int telefono;
     private Boolean status;
 
@@ -39,6 +40,7 @@ public class SolicitanteDto {
                 getApeMaterno(),
                 getApePaterno(),
                 getCorreo(),
+                getPasswordSoli(),
                 getTelefono(),
                 getStatus(),
                 getAdmin(),

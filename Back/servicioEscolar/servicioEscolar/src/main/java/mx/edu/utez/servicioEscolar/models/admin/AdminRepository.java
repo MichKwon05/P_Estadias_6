@@ -14,7 +14,7 @@ public interface AdminRepository extends JpaRepository<Admin, Long>{
 
     @Modifying
     @Query(
-        value = "UPDATE admin SET status = :status WHERE id = :id",
+        value = "UPDATE admins SET status = :status WHERE id = :id",
         nativeQuery = true
     )
     int updateStatusById(

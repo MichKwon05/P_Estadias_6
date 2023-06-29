@@ -1,5 +1,6 @@
 package mx.edu.utez.servicioEscolar.models.ventanilla;
 
+import mx.edu.utez.servicioEscolar.models.admin.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,5 +25,7 @@ public interface VentanillaRepository extends JpaRepository<Ventanilla, Long> {
     @Override
     Optional<Ventanilla> findById(Long aLong);
     List<Ventanilla> findAllByStatus(Boolean status);
+    boolean existsByCorreoVent(String correoVent);
+    Ventanilla findByCorreoVent(String correoVent);
     Ventanilla getById(Long id);
 }

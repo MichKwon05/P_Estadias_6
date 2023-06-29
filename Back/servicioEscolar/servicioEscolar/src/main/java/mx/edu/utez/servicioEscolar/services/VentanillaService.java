@@ -75,6 +75,14 @@ public class VentanillaService {
     //Insertar un Ventanilla
     @Transactional(rollbackFor =  {SQLException.class})
     public CustomResponse<Ventanilla> insert(Ventanilla ventanilla){
+        if (this.ventanillaRepository.existsByCorreoVent(ventanilla.getCorreoVent())) {
+            return new CustomResponse<>(
+                    null,
+                    true,
+                    400,
+                    "El correo ya existe"
+            );
+        }
         return new CustomResponse<>(
                 this.ventanillaRepository.saveAndFlush(ventanilla),
                 false,

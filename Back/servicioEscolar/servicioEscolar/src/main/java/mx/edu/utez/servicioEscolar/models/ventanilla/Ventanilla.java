@@ -36,7 +36,7 @@ public class Ventanilla {
     @Column(name = "apePaternoVent") //No todos tienen dos apellidos
     private String apePaterno;
     @Column(name = "correoVent", nullable = false, unique = true)
-    private String correo;
+    private String correoVent;
     @Column(name = "passwordVent", nullable = false)
     private String password;
 

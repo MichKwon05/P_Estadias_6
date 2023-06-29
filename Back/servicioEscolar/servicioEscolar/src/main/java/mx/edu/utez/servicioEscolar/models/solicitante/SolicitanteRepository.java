@@ -1,5 +1,6 @@
 package mx.edu.utez.servicioEscolar.models.solicitante;
 
+import mx.edu.utez.servicioEscolar.models.admin.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,8 @@ public interface SolicitanteRepository  extends JpaRepository<Solicitante, Long>
     @Override
     Optional<Solicitante> findById(Long aLong);
     List<Solicitante> findAllByStatus(Boolean status);
+    boolean existsByCorreoSoli(String correoSoli);
+    Solicitante findByCorreoSoli(String correoSoli);
     Solicitante getById(Long id);
 
 

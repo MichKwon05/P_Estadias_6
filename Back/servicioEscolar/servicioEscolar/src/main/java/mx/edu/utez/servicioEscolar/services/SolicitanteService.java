@@ -75,6 +75,14 @@ public class SolicitanteService {
     //Insertar un solicitante
     @Transactional(rollbackFor =  {SQLException.class})
     public CustomResponse<Solicitante> insert(Solicitante solicitante){
+         if (this.solicitanteRepository.existsByCorreoSoli(solicitante.getCorreoSoli())) {
+            return new CustomResponse<>(
+                    null,
+                    true,
+                    400,
+                    "El correo ya existe"
+            );
+        }
         return new CustomResponse<>(
                 this.solicitanteRepository.saveAndFlush(solicitante),
                 false,

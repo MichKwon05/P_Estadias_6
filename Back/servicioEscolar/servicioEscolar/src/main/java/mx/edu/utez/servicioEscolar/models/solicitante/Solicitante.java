@@ -37,8 +37,10 @@ public class Solicitante {
     private String apeMaterno;
     @Column(name = "apePaterno", nullable = false)
     private String apePaterno;
-    @Column(name = "correo", nullable = false, unique = true)
-    private String correo;
+    @Column(name = "correoSoli", nullable = false, unique = true)
+    private String correoSoli;
+    @Column(name = "passwordSoli", nullable = false)
+    private String passwordSoli;
     @Column(name = "telefono", nullable = false)
     private int telefono;
     @Column(nullable = false, columnDefinition = "tinyint default 1")
