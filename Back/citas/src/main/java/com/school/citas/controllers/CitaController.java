@@ -3,66 +3,100 @@ package com.school.citas.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.school.citas.dtos.CitaDto;
 import com.school.citas.models.Cita.Cita;
 import com.school.citas.services.CitaService;
 import com.school.citas.utils.CustomResponse;
 
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/api/citas/")
+@RequestMapping("/api/citas")
 @CrossOrigin(origins = {"*"})
 public class CitaController {
     @Autowired
     private CitaService citaService;
 
-    public CitaController(CitaService citaService) {
-        this.citaService = citaService;
-    }
-
-    @PostMapping("/")
-    public ResponseEntity<Cita> crearCita(@RequestBody Cita cita) {
-        Cita nuevaCita = citaService.crearCita(cita);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCita);
-    }
-
     @GetMapping("/")
-    public ResponseEntity<List<Cita>> obtenerTodasLasCitas() {
-        List<Cita> citas = citaService.obtenerTodasLasCitas();
-        return ResponseEntity.ok(citas);
+    public ResponseEntity<CustomResponse<List<Cita>>> getAll(){
+        return new ResponseEntity<>(
+                this.citaService.getAll(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/getActive")
+    public ResponseEntity<CustomResponse<List<Cita>>>
+    getAllActive(){
+        return new ResponseEntity<>(
+                this.citaService.getAllActive(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/getAllInactive")
+    public ResponseEntity<CustomResponse<List<Cita>>>
+    getAllInactive(){
+        return new ResponseEntity<>(
+                this.citaService.getAllInactive(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cita> obtenerCitaPorId(@PathVariable Long id) {
-        Cita cita = citaService.obtenerCitaPorId(id);
-        return ResponseEntity.ok(cita);
+    public ResponseEntity<CustomResponse<Cita>> getOne(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(
+                this.citaService.getOne(id),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<CustomResponse<Cita>> insert(
+            @RequestBody @Valid CitaDto citaDto,
+            @Valid BindingResult result
+    ) throws MessagingException{
+        if (result.hasErrors()){
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.citaService.insert(citaDto.getCita()),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cita> actualizarSolicitante(@PathVariable Long id, @RequestBody Cita solicitante) {
-        Cita solicitanteActualizado =  citaService.actualizarCita(id, solicitante);
-        return new ResponseEntity<>(solicitanteActualizado, HttpStatus.OK);
+    public ResponseEntity<CustomResponse<Cita>> update(
+            @RequestBody CitaDto citadto,
+            @Valid BindingResult result){
+        if (result.hasErrors()){
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.citaService.update(citadto.getCita()),
+                HttpStatus.CREATED
+        );
     }
 
-    @PatchMapping("/{id}/atendida")
-    public ResponseEntity<Cita> marcarCitaComoAtendida(@PathVariable Long id) {
-        Cita citaAtendida = citaService.marcarCitaComoAtendida(id);
-        return new ResponseEntity<>(citaAtendida, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCita(@PathVariable Long id) {
-        citaService.eliminarCita(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    // Otros endpoints según sea necesario
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomResponse> handleException(Exception ex) {
-        CustomResponse response = new CustomResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    @PatchMapping("/")
+    public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
+            @RequestBody CitaDto citaDto
+    ){
+        return new ResponseEntity<>(
+                this.citaService.changeStatus(citaDto.getCita()),
+                HttpStatus.OK
+        );
     }
 }

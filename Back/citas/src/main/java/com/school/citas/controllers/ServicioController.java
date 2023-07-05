@@ -3,56 +3,99 @@ package com.school.citas.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.school.citas.dtos.ServicioDto;
 import com.school.citas.models.Servicio.Servicio;
 import com.school.citas.services.ServicioService;
 import com.school.citas.utils.CustomResponse;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/api/servicios/")
+@RequestMapping("/api/servicios")
 @CrossOrigin(origins = {"*"})
 public class ServicioController {
     @Autowired
     private ServicioService servicioService;
 
-    @PostMapping("/")
-    public ResponseEntity<Servicio> crearServicio(@RequestBody Servicio servicio) {
-        Servicio nuevoServicio = servicioService.crearServicio(servicio);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoServicio);
+    @GetMapping("/")
+    public ResponseEntity<CustomResponse<List<Servicio>>> getAll(){
+        return new ResponseEntity<>(
+                this.servicioService.getAll(),
+                HttpStatus.OK
+        );
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<Servicio>> obtenerTodosLosServicios() {
-        List<Servicio> servicios = servicioService.obtenerTodosLosServicios();
-        return ResponseEntity.ok(servicios);
+    @GetMapping("/getActive")
+    public ResponseEntity<CustomResponse<List<Servicio>>>
+    getAllActive(){
+        return new ResponseEntity<>(
+                this.servicioService.getAllActive(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/getAllInactive")
+    public ResponseEntity<CustomResponse<List<Servicio>>>
+    getAllInactive(){
+        return new ResponseEntity<>(
+                this.servicioService.getAllInactive(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Servicio> obtenerServicioPorId(@PathVariable Long id) {
-        Servicio servicio = servicioService.obtenerServicioPorId(id);
-        return ResponseEntity.ok(servicio);
+    public ResponseEntity<CustomResponse<Servicio>> getOne(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(
+                this.servicioService.getOne(id),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<CustomResponse<Servicio>> insert(
+            @RequestBody @Valid ServicioDto servicioDto,
+            @Valid BindingResult result
+    ){
+        if (result.hasErrors()){
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.servicioService.insert(servicioDto.getServicio()),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Servicio> actualizarServicio(@PathVariable Long id, @RequestBody Servicio servicio) {
-        Servicio servicioActualizado = servicioService.actualizarServicio(id, servicio);
-        return new ResponseEntity<>(servicioActualizado, HttpStatus.OK);
+    public ResponseEntity<CustomResponse<Servicio>> update(
+            @RequestBody ServicioDto servicioDto,
+            @Valid BindingResult result){
+        if (result.hasErrors()){
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.servicioService.update(servicioDto.getServicio()),
+                HttpStatus.CREATED
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarServicio(@PathVariable Long id) {
-        servicioService.eliminarServicio(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    
-    // Otros endpoints según sea necesario
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomResponse> handleException(Exception ex) {
-        CustomResponse response = new CustomResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    @PatchMapping("/")
+    public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
+            @RequestBody ServicioDto servicioDto
+    ){
+        return new ResponseEntity<>(
+                this.servicioService.changeStatus(servicioDto.getServicio()),
+                HttpStatus.OK
+        );
     }
 }
