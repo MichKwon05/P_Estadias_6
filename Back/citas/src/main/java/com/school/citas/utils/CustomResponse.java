@@ -1,19 +1,17 @@
 package com.school.citas.utils;
 
-public class CustomResponse {
-    private int status;
-    private String message;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public CustomResponse(int status, String message) {
-        this.status = status;
-        this.message = message;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+public class CustomResponse <T> {
+    T data;
+    Boolean error;
+    int StatusCode;
+    String message;
 }

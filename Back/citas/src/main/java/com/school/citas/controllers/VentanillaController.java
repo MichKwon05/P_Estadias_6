@@ -1,64 +1,238 @@
 package com.school.citas.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.school.citas.dtos.VentanillaDto;
 import com.school.citas.models.Ventanilla.Ventanilla;
 import com.school.citas.services.VentanillaService;
 import com.school.citas.utils.CustomResponse;
 
+import java.io.File;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/api/ventanilla/")
+@RequestMapping("/api/ventanillas/")
 @CrossOrigin(origins = {"*"})
 public class VentanillaController {
+
+    @Autowired
+    private JavaMailSender javaMailSender;    
     @Autowired
     private VentanillaService ventanillaService;
 
-    @PostMapping("/")
-    public ResponseEntity<Ventanilla> crearVentanilla(@RequestBody Ventanilla ventanilla) {
-        Ventanilla nuevaVentanilla = ventanillaService.crearVentanilla(ventanilla);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaVentanilla);
+    //@PreAuthorize("hasRole('VENTANILLA')")
+    @GetMapping("/")
+    public ResponseEntity<CustomResponse<List<Ventanilla>>> getAll(){
+        return new ResponseEntity<>(
+                this.ventanillaService.getAll(),
+                HttpStatus.OK
+        );
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<Ventanilla>> obtenerTodasLasVentanillas() {
-        List<Ventanilla> ventanillas = ventanillaService.obtenerTodasLasVentanillas();
-        return ResponseEntity.ok(ventanillas);
+   @GetMapping("/getActive")
+   public ResponseEntity<CustomResponse<List<Ventanilla>>>
+   getAllActive(){
+       return new ResponseEntity<>(
+               this.ventanillaService.getAllActive(),
+               HttpStatus.OK
+       );
+   }
+
+    @GetMapping("/getAllInactive")
+    public ResponseEntity<CustomResponse<List<Ventanilla>>>
+    getAllInactive(){
+        return new ResponseEntity<>(
+                this.ventanillaService.getAllInactive(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ventanilla> obtenerVentanillaPorId(@PathVariable Long id) {
-        Ventanilla ventanilla = ventanillaService.obtenerVentanillaPorId(id);
-        return ResponseEntity.ok(ventanilla);
+    public ResponseEntity<CustomResponse<Ventanilla>> getOne(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(
+                this.ventanillaService.getOne(id),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<CustomResponse<Ventanilla>> insert(
+            @RequestBody @Valid VentanillaDto ventanillaDto,
+            @Valid BindingResult result
+    ) throws MessagingException{
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.ventanillaService.insert(ventanillaDto.getVentanilla()),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ventanilla> actualizarVentanilla(@PathVariable Long id, @RequestBody Ventanilla ventanilla) {
-        Ventanilla ventanillaActualizado = ventanillaService.actualizarVentanilla(id, ventanilla);
-        return new ResponseEntity<>(ventanillaActualizado, HttpStatus.OK);
+    public ResponseEntity<CustomResponse<Ventanilla>> update(
+            @RequestBody VentanillaDto ventanillaDto,
+            @Valid BindingResult result
+    ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.ventanillaService.update(ventanillaDto.getVentanilla()),
+                HttpStatus.CREATED
+        );
     }
 
-    @PatchMapping("/{user}")
-    public ResponseEntity<Ventanilla> marcarBajaDefinitiva(@PathVariable String user) {
-        Ventanilla bajaVentanilla = ventanillaService.marcarBajaDefinitiva(user);
-        return new ResponseEntity<>(bajaVentanilla, HttpStatus.OK);
+    @PatchMapping("/{id}")
+    public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
+             @RequestBody
+    VentanillaDto ventanillaDto
+    ){
+        return new ResponseEntity<>(
+                this.ventanillaService.changeStatus(ventanillaDto.getVentanilla()),
+                HttpStatus.OK
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarVentanilla(@PathVariable Long id) {
-        ventanillaService.eliminarVentanilla(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+    //modificar contraseña
+    @PatchMapping("/changePassword")
+    public ResponseEntity<CustomResponse<Integer>> changePassword(@RequestBody VentanillaDto ventanillaDto, @Valid BindingResult result) throws MessagingException
+    {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
 
-    // Otros endpoints según sea necesario
+        MimeMessage mimeMessage=javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper= new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        messageHelper.setTo(ventanillaDto.getCorreo());
+        messageHelper.setFrom("20213tn002@utez.edu.mx");
+        messageHelper.setSubject("Solicitud de Recuperación de Contraseña");
+        
+        // Configurar el contenido del mensaje con diseño personalizado
+        String htmlContent = "<html>" +
+        "<head>" +
+        "<style>" +
+        ".card {" +
+        "width: 500px;" +
+        "height: 500px;" +
+        "margin: 0 auto;" +
+        "background-color: #f8fbfe;" +
+        "border-radius: 8px;" +
+        "border: 1px solid #ccc;" +
+        "}" +
+        ".tools {" +
+        "display: flex;" +
+        "align-items: center;" +
+        "padding: 9px;" +
+        "}" +
+        ".circle {" +
+        "padding: 0 4px;" +
+        "}" +
+        ".box {" +
+        "display: inline-block;" +
+        "align-items: center;" +
+        "width: 10px;" +
+        "height: 10px;" +
+        "padding: 1px;" +
+        "border-radius: 50%;" +
+        "}" +
+        ".red {" +
+        "background-color: #ff605c;" +
+        "}" +
+        ".yellow {" +
+        "background-color: #ffbd44;" +
+        "}" +
+        ".green {" +
+        "background-color: #00ca4e;" +
+        "}" +
+        ".card__content {" +
+        "display: flex;" +
+        "justify-content: center;" +
+        "align-items: center;" +
+        "height: calc(100% - 36px);" +
+        "}" +
+        ".card__content > div {" +
+        "padding-left: 10px;" +
+        "}" +
+        "h1 {" +
+        "font-size: 24px;" +
+        "color: #ff605c;" +
+        "font-family: 'Courier New', monospace;" +
+        "margin-bottom: 8px;" +
+        "}" +
+        "h4 {" +
+        "font-size: 18px;" +
+        "color: #264b99;" +
+        "font-family: 'Courier New', monospace;" +
+        "margin-bottom: 4px;" +
+        "}" +
+        "img {" +
+        "max-width: 100%;" +
+        "height: auto;" +
+        "margin-bottom: 12px;" +
+        "}" +
+        "</style>" +
+        "</head>" +
+        "<body>" +
+        "<div class=\"card\">" +
+        "<div class=\"tools\">" +
+        "<div class=\"circle\">" +
+        "<span class=\"red box\"></span>" +
+        "</div>" +
+        "<div class=\"circle\">" +
+        "<span class=\"yellow box\"></span>" +
+        "</div>" +
+        "<div class=\"circle\">" +
+        "<span class=\"green box\"></span>" +
+        "</div>" +
+        "</div>" +
+        "<div class=\"card__content\">" +
+        "<div>" +
+        "<h1 style=\"color: #ff605c;\">¡Hola! "+ ventanillaDto.getNombre() + ventanillaDto.getApePaterno() +" </h1>" +
+        "<h4 style=\"color: #58BEC4;\">Usuario Administrador</h4>" +
+        "<img src='cid:logoImage' />" +
+        "<h4 style=\"color: #BAB9BC;\">" +
+        "Su contraseña has sido modificada correctamente: " + ventanillaDto.getPass() +
+        "</h4>" +
+        "<br>" +
+        "<div>" +
+        "<center><img src=\"cid:logoImage\" alt=\"Logo\"> width=\"50px\" height=\"50px\"></center>"+
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        "</body>" +
+        "</html>";
+        messageHelper.setText(htmlContent, true);
+        
+        // Adjuntar la imagen como recurso en línea
+        FileSystemResource imageResource = new FileSystemResource(new File("src/main/resources/static/images/citat.jpeg"));
+        messageHelper.addInline("logoImage", imageResource);
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomResponse> handleException(Exception ex) {
-        CustomResponse response = new CustomResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        this.javaMailSender.send(mimeMessage);
+        return new ResponseEntity<>(
+                this.ventanillaService.changePassword(ventanillaDto.getVentanilla()),
+                HttpStatus.OK
+        );
     }
 }

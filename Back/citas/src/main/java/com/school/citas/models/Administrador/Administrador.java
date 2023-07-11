@@ -8,13 +8,13 @@ import com.school.citas.models.Servicio.Servicio;
 import com.school.citas.models.Solicitante.Solicitante;
 import com.school.citas.models.Ventanilla.Ventanilla;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,27 +33,29 @@ public class Administrador {
     private Long id;
     @Column(name = "nombreAdmin", nullable = false)
     private String nombreAdmin;
-    @Column(name = "apeMaternoAdmin", nullable = false)
-    private String apeMaternoAdmin;
-    @Column(name = "apePaternoAdmin") //No todos tienen dos apellidos
+    @Column(name = "apePaternoAdmin", nullable = false)
     private String apePaternoAdmin;
+    @Column(name = "apeMaternoAdmin") //No todos tienen dos apellidos
+    private String apeMaternoAdmin;
     @Column(name = "correoAdmin", nullable = false, unique = true)
     private String correoAdmin;
     @Column(name = "pass", nullable = false)
     private String pass;
     @Column(name = "status", nullable = false, columnDefinition = "tinyint default 1")
     private boolean status;
+    @Column(name = "changePassword", nullable = false, columnDefinition = "tinyint default 0")
+    private Boolean changePassword;
 
-        ///Gestiona Ventanillas
-        @OneToMany(mappedBy = "admin")
-        private List<Ventanilla> ventanillas;
+    ///Gestiona Ventanillas
+    @OneToMany(mappedBy = "admin")
+    private List<Ventanilla> ventanillas;
     
-        ///Gestiona solicitantes
-        @OneToMany(mappedBy = "admin")
-        private List<Solicitante> solicitantes;
+    ///Gestiona solicitantes
+    @OneToMany(mappedBy = "admin")
+    private List<Solicitante> solicitantes;
     
-        ///Gestiona servicios
-        @OneToMany(mappedBy = "admin")
-        private List<Servicio> servicios;
+    ///Gestiona servicios
+    @OneToMany(mappedBy = "admin")
+    private List<Servicio> servicios;
 
 }

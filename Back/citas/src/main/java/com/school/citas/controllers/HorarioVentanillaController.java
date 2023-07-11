@@ -3,56 +3,101 @@ package com.school.citas.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.school.citas.dtos.HorarioDto;
 import com.school.citas.models.Horario.HorarioVentanilla;
 import com.school.citas.services.HorarioVentanillaService;
 import com.school.citas.utils.CustomResponse;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/horarios-ventanilla/")
 @CrossOrigin(origins = {"*"})
 public class HorarioVentanillaController {
+
     @Autowired
     private HorarioVentanillaService horarioVentanillaService;
 
-    @PostMapping("/")
-    public ResponseEntity<HorarioVentanilla> crearHorarioVentanilla(@RequestBody HorarioVentanilla horarioVentanilla) {
-        HorarioVentanilla nuevoHorarioVentanilla = horarioVentanillaService.crearHorarioVentanilla(horarioVentanilla);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoHorarioVentanilla);
+    ///Obtener todos los horarios
+    @GetMapping("/getAll")
+    public ResponseEntity<CustomResponse<List<HorarioVentanilla>>> getAll() {
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.getAll(),
+                HttpStatus.OK
+        );
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<HorarioVentanilla>> obtenerTodosLosHorariosVentanilla() {
-        List<HorarioVentanilla> horariosVentanilla = horarioVentanillaService.obtenerTodosLosHorariosVentanilla();
-        return ResponseEntity.ok(horariosVentanilla);
+    @GetMapping("/getActive")
+    public ResponseEntity<CustomResponse<List<HorarioVentanilla>>>
+    getAllActive(){
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.getAllActive(),
+                HttpStatus.OK
+        );
     }
 
+    @GetMapping("/getAllInactive")
+    public ResponseEntity<CustomResponse<List<HorarioVentanilla>>>
+    getAllInactive(){
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.getAllInactive(),
+                HttpStatus.OK
+        );
+    }
+
+    //Obtener un registro de horario por id
     @GetMapping("/{id}")
-    public ResponseEntity<HorarioVentanilla> obtenerHorarioVentanillaPorId(@PathVariable Long id) {
-        HorarioVentanilla horarioVentanilla = horarioVentanillaService.obtenerHorarioVentanillaPorId(id);
-        return ResponseEntity.ok(horarioVentanilla);
+    public ResponseEntity<CustomResponse<HorarioVentanilla>> getOne(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.getOne(id),
+                HttpStatus.OK
+        );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<HorarioVentanilla> actualizarHorarioVentanilla(@PathVariable Long id, @RequestBody HorarioVentanilla horarioVentanilla) {
-        HorarioVentanilla horarioVentanillaActualizado =  horarioVentanillaService.actualizarHorarioVentanilla(id, horarioVentanilla);
-        return new ResponseEntity<>(horarioVentanillaActualizado, HttpStatus.OK);
+    //Insertar un horario
+    @PostMapping("/")
+    public ResponseEntity<CustomResponse<HorarioVentanilla>> insert(
+            @RequestBody HorarioDto horarioDto, @Valid BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.insert(horarioDto.getHorario()),
+                HttpStatus.CREATED
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarHorarioVentanilla(@PathVariable Long id) {
-        horarioVentanillaService.eliminarHorarioVentanilla(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    //Modificar un horario
+    @PutMapping("/")
+    public ResponseEntity<CustomResponse<HorarioVentanilla>> update(
+            @RequestBody HorarioDto horarioDto, @Valid BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.update(horarioDto.getHorario()),
+                HttpStatus.CREATED
+        );
     }
 
-    // Otros endpoints según sea necesario
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomResponse> handleException(Exception ex) {
-        CustomResponse response = new CustomResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    //Modificar el status de una categoría
+    @PatchMapping("/")
+    public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
+            @RequestBody HorarioDto horarioDto) {
+        return new ResponseEntity<>(
+                this.horarioVentanillaService.changeStatus(horarioDto.getHorario()),
+                HttpStatus.OK
+        );
     }
 }

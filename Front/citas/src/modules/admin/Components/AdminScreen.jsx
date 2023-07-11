@@ -22,6 +22,7 @@ const AdminScreen = () => {
     const [correoAdmin, setCorreo] = useState('');
     const [pass, setPass] = useState('');
     const [status, setStatus] = useState('');
+    const [changePassword, setChangePass] = useState('');
 
     useEffect(() => {
         cargarAdmin();
@@ -30,8 +31,8 @@ const AdminScreen = () => {
     const cargarAdmin = async () => {
         try {
             const respuesta = await axios.get(url);
-            setAdmin(respuesta.data);
-            //console.log(respuesta.data)
+            setAdmin(respuesta.data.data);
+            console.log(respuesta.data.data)
             //console.clear();
         } catch (error) {
             console.log('Error:', error.message);
@@ -48,7 +49,7 @@ const AdminScreen = () => {
     const handleClose = () => setShow(false);
 
     const handleShow = (mode, id, nombreAdmin, apePaternoAdmin, apeMaternoAdmin,
-        correoAdmin, pass, status) => {
+        correoAdmin, pass, status, changePassword) => {
         setId('');
         setNombreAdmin('');
         setApellidoPaterno('');
@@ -56,6 +57,7 @@ const AdminScreen = () => {
         setCorreo('');
         setPass('');
         setStatus(true);
+        setChangePass(false);
         setMode(mode);
         if (mode === "add") {
             setTitle('Registrar administrador');
@@ -68,6 +70,7 @@ const AdminScreen = () => {
             setCorreo(correoAdmin);
             setPass(pass);
             setStatus(status);
+            setChangePass(changePassword);
         }
         /*window.setTimeout(function(){
             document.getElementById(`nombre`).focus();
@@ -90,13 +93,13 @@ const AdminScreen = () => {
             if (modo === "add") {
                 parametros = {
                     nombreAdmin: nombreAdmin.trim(), apePaternoAdmin: apePaternoAdmin.trim(), apeMaternoAdmin: apeMaternoAdmin,
-                    correoAdmin: correoAdmin.trim(), pass: pass.trim(), status: status
+                    correoAdmin: correoAdmin.trim(), pass: pass.trim(), status: status, changePassword: changePassword
                 };
                 metodo = 'POST';
             } else {
                 parametros = {
                     id: id, nombreAdmin: nombreAdmin.trim(), apePaternoAdmin: apePaternoAdmin.trim(), apeMaternoAdmin: apeMaternoAdmin,
-                    correoAdmin: correoAdmin.trim(), pass: pass.trim(), status: status
+                    correoAdmin: correoAdmin.trim(), pass: pass.trim(), status: status, changePassword: changePassword
                 };
                 metodo = 'PUT';
             }
@@ -113,10 +116,10 @@ const AdminScreen = () => {
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
-                        title: 'Administrador actualizado correctamente',
+                        title: msj,
                         text: 'Administrador: ' + nombreAdmin + ' ' + apePaternoAdmin,
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     if (hasError === false) {
                         cargarAdmin();
@@ -129,7 +132,7 @@ const AdminScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     /*handleClose();
                     console.log(error);
@@ -140,55 +143,32 @@ const AdminScreen = () => {
                     cargarAdmin();
                     handleClose();
                 });
-        } else if (metodo === 'DELETE') {
-            await axios({ method: metodo, url: `http://localhost:8080/api/administrador/${parametros.id}` })
-                .then(function (respuesta) {
-                    var hasError = respuesta.data.status;
-                    var msj = respuesta.data.message;
-                    Swal.fire({
-                        icon: 'success',
-                        iconColor: '#58BEC4',
-                        title: 'Administrador eliminado correctamente',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    if (hasError === false) {
-                        cargarAdmin();
-                        handleClose();
-                    }
-                })
-                .catch(function (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        iconColor: '#264B99',
-                        title: 'Error en la petición',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    handleClose();
-                    console.log(error);
-                })
-                .finally(function () {
-                    cargarAdmin();
-                    handleClose();
-                });
         } else {
             await axios({ method: metodo, url: url, data: parametros })
                 .then(function (respuesta) {
 
-                    var hasError = respuesta.data.status;
+                    var hasError = respuesta.data.error;
                     var msj = respuesta.data.message;
+
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
-                        title: 'Administrador registrado corrrectamente',
+                        title: msj,
                         text: 'Administrador: ' + nombreAdmin + ' ' + apePaternoAdmin,
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
-                    if (hasError === false) {
+                    if (hasError === true) {
+                        Swal.fire({
+                            icon: 'error',
+                            iconColor: '#264B99',
+                            title: 'Intenta de nuevo',
+                            text: msj,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
                         cargarAdmin();
-                        handleClose();
+                        //handleClose();
                     }
                 })
                 .catch(function (error) {
@@ -197,7 +177,7 @@ const AdminScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     /*handleClose();
                     console.log(error);*/
@@ -210,9 +190,11 @@ const AdminScreen = () => {
 
     }
 
-    const deleteAdmin = (id) => {
+    const changeStatus = (id, nombreAdmin, apePaternoAdmin, apeMaternoAdmin, correoAdmin, pass, status, changePassword) => {
+        const nuevoStatus = !status; // Cambiar el estado actual
+
         Swal.fire({
-            title: '¿Deseas eliminarlo?',
+            title: '¿Deseas cambiar el estado?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#58BEC4',
@@ -221,18 +203,64 @@ const AdminScreen = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                setId(id);
-                enviarSolicitud('DELETE', { id: id });
-                Swal.fire(
-                    '¡Eliminado con éxito!',
-                    'success'
-                );
+                const data = {
+                    id: id,
+                    nombreAdmin: nombreAdmin,
+                    apePaternoAdmin: apePaternoAdmin,
+                    apeMaternoAdmin: apeMaternoAdmin,
+                    correoAdmin: correoAdmin,
+                    pass: pass,
+                    status: nuevoStatus, // Asignar el nuevo estado
+                    changePassword: changePassword
+                };
+
+                axios.patch(`http://localhost:8080/api/administrador/${id}`, data)
+                    .then(function (respuesta) {
+                        var hasError = respuesta.data.status;
+                        var msj = respuesta.data.message;
+
+                        let successMessage;
+
+                        if (nuevoStatus) {
+                            successMessage = 'Administrador dado de alta correctamente';
+                        } else {
+                            successMessage = 'Administrador dado de baja correctamente';
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            iconColor: '#58BEC4',
+                            title: successMessage,
+                            text: `Administrador: ${nombreAdmin} ${apePaternoAdmin}`,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+
+                        if (hasError === false) {
+                            cargarAdmin();
+                            handleClose();
+                        }
+                    })
+                    .catch(function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            iconColor: '#264B99',
+                            title: 'Error en la petición',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    })
+                    .finally(function () {
+                        cargarAdmin();
+                        handleClose();
+                    });
             }
         });
     }
 
     ///BUSCAR 
     const [searchTerm, setSearchTerm] = useState("");
+
     const filteredData = admin.filter(item =>
         item.nombreAdmin.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.apePaternoAdmin.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -266,14 +294,17 @@ const AdminScreen = () => {
             <div className="container">
                 <div className="table-container">
                     <div className="table-wrapper">
-                        <table className="table rounded-border">
+                        <table className="table">
                             <thead style={{ textAlign: 'center' }}>
                                 <tr>
+                                    <th colSpan="6" style={{ fontSize: '24px', fontWeight: 'bold' }}>ADMINISTRADORES</th>
+                                </tr>
+                                <tr>
                                     {/*<th>ID</th>*/}
-                                    <th >Nombre</th>
-                                    <th>Apellido Materno</th>
-                                    <th>Apellido Paterno</th>
+                                    <th >Nombre(s)</th>
+                                    <th>Apellido(s)</th>
                                     <th>Correo electrónico</th>
+                                    <th>Estado</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -285,11 +316,15 @@ const AdminScreen = () => {
                                 ) : (
                                     filteredData && filteredData.map((item) => (
                                         <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
-                                            {/*<td className="rounded-border">{item.id}</td>*/}
                                             <td className="rounded-border">{item.nombreAdmin}</td>
-                                            <td className="rounded-border">{item.apePaternoAdmin}</td>
-                                            <td className="rounded-border">{item.apeMaternoAdmin}</td>
+                                            <td className="rounded-border">{item.apePaternoAdmin} {item.apeMaternoAdmin}</td>
                                             <td className="rounded-border">{item.correoAdmin}</td>
+                                            <td className="rounded-border">{
+                                                item.status ? (
+                                                <Badge bg='success'>Alta</Badge>
+                                                ) : (
+                                                <Badge bg='danger'>Baja</Badge>)}
+                                            </td>
                                             <td style={{ background: '#2A4172', border: 'none' }}>
 
                                                 <button className="btn-b" style={{ marginRight: '5px' }}>
@@ -297,24 +332,28 @@ const AdminScreen = () => {
                                                         icon='edit'
                                                         style={{ color: 'black' }}
                                                         onClick={() => handleShow('edit', item.id, item.nombreAdmin, item.apePaternoAdmin,
-                                                            item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status)}
+                                                            item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status, item.changePassword)}
                                                     />
                                                 </button>
-                                                <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
-                                                    <FeatherIcon
-                                                        icon='trash'
-                                                        style={{ color: 'black' }}
-                                                        onClick={() => deleteAdmin(item.id)}
-                                                    />
-                                                </button>
-                                                {/*<button className="btn-b">
-                                                    <FeatherIcon
-                                                        icon='edit'
-                                                        style={{ color: 'black' }}
-                                                        onClick={() => handleShow('edit', item.id, item.nombreAdmin, item.apePaternoAdmin,
-                                                            item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status)}
-                                                    />
-                                    </button>*/}
+                                                {item.status ? (
+                                                    <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
+                                                        <FeatherIcon
+                                                            icon='trash-2'
+                                                            style={{ color: 'black' }}
+                                                            onClick={() => changeStatus(item.id, item.nombreAdmin, item.apePaternoAdmin,
+                                                                item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status, item.changePassword)}
+                                                        />
+                                                    </button>
+                                                ) : (
+                                                    <button className="btn-inactive" /*style={{ marginRight: '5px' }}*/>
+                                                        <FeatherIcon
+                                                            icon='pocket'
+                                                            style={{ color: 'black' }}
+                                                            onClick={() => changeStatus(item.id, item.nombreAdmin, item.apePaternoAdmin,
+                                                                item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status, item.changePassword)}
+                                                        />
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

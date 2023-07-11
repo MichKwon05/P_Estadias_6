@@ -9,13 +9,13 @@ import FeatherIcon from 'feather-icons-react/build/FeatherIcon'
 import Swal from 'sweetalert2';
 
 const SolicitanteScreen = () => {
-  
+
   const navigate = useNavigate();
-  const urlVenta = `http://localhost:8080/api/solicitante/`
+  const urlVenta = `http://localhost:8080/api/solicitantes/`
 
   /*Cargar Solicitante */
   const [solicitante, setSolicitante] = useState([]);
-  const [admin, setAdmin] = useState([]);
+  const [administrador, setAdministrador] = useState([]);
 
   const [id, setId] = useState('');
   const [nombre, setNombre] = useState('');
@@ -27,6 +27,9 @@ const SolicitanteScreen = () => {
   const [telefono, setTelefono] = useState('');
   const [pass, setPass] = useState('');
   const [status, setStatus] = useState('');
+  const [changePassword, setChangePassword] = useState('');
+
+  const [sessionId] = useState(1);
 
   useEffect(() => {
     cargarSolicitante();
@@ -36,8 +39,8 @@ const SolicitanteScreen = () => {
   const cargarSolicitante = async () => {
     try {
       const respuesta = await axios.get(urlVenta);
-      setSolicitante(respuesta.data);
-      console.log(respuesta.data)
+      setSolicitante(respuesta.data.data);
+      console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -47,7 +50,7 @@ const SolicitanteScreen = () => {
   const cargarAdmin = async () => {
     try {
       const respuesta = await axios.get(`http://localhost:8080/api/administrador/`);
-      setAdmin(respuesta.data);
+      setAdministrador(respuesta.data.data);
       //console.log(respuesta.data)
       //console.clear();
     } catch (error) {
@@ -65,7 +68,7 @@ const SolicitanteScreen = () => {
   const handleClose = () => setShow(false);
 
   const handleShow = (mode, id, nombre, apePaterno, apeMaterno, matricula, carrera,
-    correoElectronico, telefono, pass, status) => {
+    correoElectronico, telefono, pass, status, changePassword) => {
     setId('');
     setNombre('');
     setApePaterno('');
@@ -75,7 +78,8 @@ const SolicitanteScreen = () => {
     setCorreoElectronico('');
     setTelefono('');
     setPass('');
-    setStatus(status);
+    setStatus(true);
+    setChangePassword(false);
     setMode(mode);
     if (mode === "add") {
       setTitle('Registrar solicitante');
@@ -91,6 +95,7 @@ const SolicitanteScreen = () => {
       setTelefono(telefono);
       setPass(pass);
       setStatus(status);
+      setChangePassword(changePassword);
       setMode(mode);
     }
     /*window.setTimeout(function(){
@@ -103,7 +108,7 @@ const SolicitanteScreen = () => {
     var parametros;
     var metodo;
     var modo = mode; // Agregar variable local para guardar mode
-    if (![nombre, apePaterno, /*apeMaterno*/, matricula, carrera, correoElectronico, telefono,pass].every(field => field !== '')) {
+    if (![nombre, apePaterno, /*apeMaterno*/, matricula, carrera, correoElectronico, telefono, pass].every(field => field !== '')) {
       Swal.fire({
         icon: 'warning',
         title: 'Llena todos los campos',
@@ -114,17 +119,17 @@ const SolicitanteScreen = () => {
       if (modo === "add") {
         parametros = {
           nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
-          matricula: matricula.trim(), carrera: carrera.trim(), 
-          correoElectronico: correoElectronico.trim(), telefono: telefono.trim(), carrera: carrera.trim(),
-          pass: pass.trim(), status: status
+          matricula: matricula.trim(), carrera: carrera.trim(),
+          correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: sessionId[0]
         };
         metodo = 'POST';
       } else {
         parametros = {
-          nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
-          matricula: matricula.trim(), carrera: carrera.trim(), 
-          correoElectronico: correoElectronico.trim(), telefono: telefono.trim(), carrera: carrera.trim(),
-          pass: pass.trim(), status: status
+          id: id, nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
+          matricula: matricula.trim(), carrera: carrera.trim(),
+          correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: sessionId[0]
         };
         metodo = 'PUT';
       }
@@ -134,17 +139,17 @@ const SolicitanteScreen = () => {
 
   const enviarSolicitud = async (metodo, parametros) => {
     if (metodo === 'PUT') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/solicitante/${id}`, data: parametros })
+      await axios({ method: metodo, url: `http://localhost:8080/api/solicitantes/${id}`, data: parametros })
         .then(function (respuesta) {
           var hasError = respuesta.data.status;
-          ///var msj = respuesta.data.message;
+          var msj = respuesta.data.message;
           Swal.fire({
             icon: 'success',
             iconColor: '#58BEC4',
-            title: 'Solicitante actualizado correctamente',
+            title: msj,
             text: 'Solicitante: ' + nombre + ' ' + apePaterno,
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
           if (hasError === false) {
             cargarSolicitante();
@@ -168,20 +173,29 @@ const SolicitanteScreen = () => {
           cargarSolicitante();
           handleClose();
         });
-
-    } else if (metodo === 'DELETE') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/solicitante/${parametros.id}` })
+    } else {
+      await axios({ method: metodo, url: urlVenta, data: parametros })
         .then(function (respuesta) {
+
           var hasError = respuesta.data.status;
           var msj = respuesta.data.message;
           Swal.fire({
             icon: 'success',
             iconColor: '#58BEC4',
-            title: 'Ventanilla eliminada correctamente',
+            title: msj,
+            text: 'Solicitante: ' + nombre + ' ' + apePaterno,
             showConfirmButton: false,
             timer: 1500
           });
           if (hasError === false) {
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Intenta de nuevo',
+              text: msj,
+              showConfirmButton: false,
+              timer: 2000
+            });
             cargarSolicitante();
             handleClose();
           }
@@ -194,53 +208,23 @@ const SolicitanteScreen = () => {
             showConfirmButton: false,
             timer: 1500
           });
+          /*handleClose();*/
           console.log(error);
         })
         .finally(function () {
           cargarSolicitante();
           handleClose();
         });
-    } else {
-      await axios({ method: metodo, url: urlVenta, data: parametros })
-        .then(function (respuesta) {
-
-          var hasError = respuesta.data.status;
-          var msj = respuesta.data.message;
-          Swal.fire({
-            icon: 'success',
-            iconColor: '#58BEC4',
-            title: 'Ventanilla registrada corrrectamente',
-            text: 'Ventanilla: ' + nombre + ' ' + apePaterno,
-            showConfirmButton: false,
-            timer: 1500
-          });
-          if (hasError === false) {
-            cargarAdmin();
-            handleClose();
-          }
-        })
-        .catch(function (error) {
-          Swal.fire({
-            icon: 'error',
-            iconColor: '#264B99',
-            title: 'Error en la petición',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          /*handleClose();
-          console.log(error);*/
-        })
-        .finally(function () {
-          cargarAdmin();
-          handleClose();
-        });
     }
 
   }
 
-  const deleteSoli = (id) => {
+  const changeStatus = (id, nombre, apePaterno, apeMaterno, matricula, carrera,
+    correoElectronico, telefono, pass, status, changePassword) => {
+    const nuevoStatus = !status; // Cambiar el estado actual
+
     Swal.fire({
-      title: '¿Deseas eliminarlo?',
+      title: '¿Deseas cambiar el estado?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#58BEC4',
@@ -249,15 +233,64 @@ const SolicitanteScreen = () => {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        setId(id);
-        enviarSolicitud('DELETE', { id: id });
-        Swal.fire(
-          '¡Eliminado con éxito!',
-          'success'
-        );
+        const data = {
+          id: id,
+          nombre: nombre,
+          apePaterno: apePaterno,
+          apeMaterno: apeMaterno,
+          matricula: matricula,
+          carrera: carrera,
+          correoElectronico: correoElectronico,
+          telefono: telefono,
+          pass: pass,
+          status: nuevoStatus, // Asignar el nuevo estado
+          changePassword: changePassword
+        };
+
+        axios.patch(`http://localhost:8080/api/solicitantes/${id}`, data)
+          .then(function (respuesta) {
+            var hasError = respuesta.data.status;
+            var msj = respuesta.data.message;
+
+            let successMessage;
+
+            if (nuevoStatus) {
+              successMessage = 'Solicitante dado de alta correctamente';
+            } else {
+              successMessage = 'Solicitante dado de baja correctamente';
+            }
+
+            Swal.fire({
+              icon: 'success',
+              iconColor: '#58BEC4',
+              title: successMessage,
+              text: `Solicitante: ${nombre} ${apePaterno}`,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            if (hasError === false) {
+              cargarSolicitante();
+              handleClose();
+            }
+          })
+          .catch(function (error) {
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Error en la petición',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          })
+          .finally(function () {
+            cargarSolicitante();
+            handleClose();
+          });
       }
     });
   }
+
 
   ///BUSCAR 
   const [searchTerm, setSearchTerm] = useState("");
@@ -300,17 +333,17 @@ const SolicitanteScreen = () => {
             <table className="table rounded-border">
               <thead style={{ textAlign: 'center' }}>
                 <tr>
-                  <th colSpan="5" style={{ fontSize: '24px', fontWeight: 'bold' }}>SOLICITANTES</th>
+                  <th colSpan="6" style={{ fontSize: '24px', fontWeight: 'bold' }}>SOLICITANTES</th>
                 </tr>
                 <tr>
                   {/*<th>ID</th>*/}
-                  <th >Nombre</th>
-                  <th>Apellido Materno</th>
-                  <th>Apellido Paterno</th>
+                  <th >Nombre(s)</th>
+                  <th>Apellido (s)</th>
                   <th>Matrícula</th>
                   <th>Carrera</th>
                   <th>Correo electrónico</th>
-                  <th>Teléfono</th>
+                  {/*<th>Teléfono</th>*/}
+                  <th>Estado</th>
                   <th></th>
                 </tr>
               </thead>
@@ -323,28 +356,47 @@ const SolicitanteScreen = () => {
                   <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                     {/*<td className="rounded-border">{item.id}</td>*/}
                     <td className="rounded-border">{item.nombre}</td>
-                    <td className="rounded-border">{item.apePaterno}</td>
-                    <td className="rounded-border">{item.apeMaterno}</td>
+                    <td className="rounded-border">{item.apePaterno} {item.apeMaterno}</td>
                     <td className="rounded-border">{item.matricula}</td>
                     <td className="rounded-border">{item.carrera}</td>
                     <td className="rounded-border">{item.correoElectronico}</td>
-                    <td className="rounded-border">{item.telefono}</td>
+                    {/*<td className="rounded-border">{item.telefono}</td>*/}
+                    <td className="rounded-border">{
+                      item.status ? (
+                        <Badge bg='success'>Alta</Badge>
+                      ) : (
+                        <Badge bg='danger'>Baja</Badge>)}
+                    </td>
                     <td style={{ background: '#2A4172', border: 'none' }}>
                       <button className="btn-b" style={{ marginRight: '5px' }}>
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
                           onClick={() => handleShow('edit', item.id, item.nombre, item.apePaterno, item.apeMaterno, item.matricula,
-                           item.carrera,item.correoElectronico, item.telefono, item.pass, item.status)}
+                            item.carrera, item.correoElectronico, item.telefono, item.pass, item.status, item.changePassword)}
                         />
                       </button>
-                      <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
-                        <FeatherIcon
-                          icon='trash'
-                          style={{ color: 'black' }}
-                          onClick={() => deleteSoli(item.id)}
-                        />
-                      </button>
+                      {item.status ? (
+                        <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='trash-2'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.nombre, item.apePaterno, item.apeMaterno, item.matricula,
+                              item.carrera, item.correoElectronico, item.telefono, item.pass,
+                              item.status, item.changePassword)}
+                          />
+                        </button>
+                      ) : (
+                        <button className="btn-inactive" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='pocket'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.nombre, item.apePaterno, item.apeMaterno, item.matricula,
+                              item.carrera, item.correoElectronico, item.telefono, item.pass,
+                              item.status, item.changePassword)}
+                          />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
