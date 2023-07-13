@@ -34,11 +34,11 @@ public class Ventanilla {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "nombreVent", nullable = false)
-    private String nombre;
+    private String nombreVent;
     @Column(name = "apePaternoVent", nullable = false)
-    private String apePaterno;
+    private String apePaternoVent;
     @Column(name = "apeMaternoVent") //No todos tienen dos apellidos
-    private String apeMaterno;
+    private String apeMaternoVent;
     @Column(name = "correoElectronico", nullable = false, unique = true)
     private String correoElectronico;
     @Column(name = "pass", nullable = false)
@@ -48,11 +48,12 @@ public class Ventanilla {
     @Column(name = "changePassword", nullable = false, columnDefinition = "tinyint default 0")
     private Boolean changePassword;
 
-    @OneToMany(mappedBy = "ventanilla")
-    private List<Cita> citas;
-
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     @JsonBackReference
     private Administrador admin;
+    @OneToMany(mappedBy = "ventanilla")
+    private List<Cita> citas;
+
+
 }

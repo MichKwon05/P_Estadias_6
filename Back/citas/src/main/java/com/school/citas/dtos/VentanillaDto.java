@@ -22,32 +22,32 @@ import org.hibernate.validator.constraints.Length;
 public class VentanillaDto {
 
     private Long id;
-    private String nombre;
-    private String apePaterno;
-    private String apeMaterno;
+    private String nombreVent;
+    private String apePaternoVent;
+    private String apeMaternoVent;
     @NotEmpty(message = "Campo Obligatorio")
-    private String correo;
+    private String correoElectronico;
     @NotEmpty(message = "Campo Obligatorio")
     @Length(min = 1, max = 20)
     private String pass;
     private Boolean status;
     private Boolean changePassword;
 
-    private List<Cita> citas;
     private Administrador admin;
+    private List<Cita> citas;
 
     public Ventanilla getVentanilla(){
         return new Ventanilla(
                 getId(),
-                getNombre(),
-                getApePaterno(),
-                getApeMaterno(),
-                getCorreo(),
+                getNombreVent(),
+                getApePaternoVent(),
+                getApeMaternoVent(),
+                getCorreoElectronico(),
                 getPass(),
                 getStatus(),
                 getChangePassword(),
-                getCitas(),
-                getAdmin()
+                getAdmin(),
+                getCitas()
         );
     }
 }

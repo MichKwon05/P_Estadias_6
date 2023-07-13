@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, Modal, Card, Col, Row, Badge, Button, Form, InputGroup } from 'react-bootstrap'
-import DataTable, { createTheme } from 'react-data-table-component'
 import '../../../shared/plugins/Screens.css'
 
 import FeatherIcon from 'feather-icons-react/build/FeatherIcon'
@@ -12,19 +11,20 @@ import Swal from 'sweetalert2';
 const VentanillaScreen = () => {
 
   const navigate = useNavigate();
-  const urlVenta = `http://localhost:8080/api/ventanilla/`
+  const urlVenta = `http://localhost:8080/api/ventanillas/`
 
   /*Cargar Ventanilla */
   const [vetanilla, setVentanilla] = useState([]);
-  const [admin, setAdmin] = useState([]);
+  const [administrador, setAdmin] = useState([]);
 
   const [id, setId] = useState('');
   const [nombreVent, setNombreVent] = useState('');
   const [apePaternoVent, setApePaternoVent] = useState('');
   const [apeMaternoVent, setApeMaternoVent] = useState('');
   const [correoElectronico, setCorreoElectronico] = useState('');
-  const [passVent, setPassVent] = useState('');
+  const [pass, setPass] = useState('');
   const [status, setStatus] = useState('');
+  const [changePassword, setChangePassword] = useState('');
 
   const [adminId, setAdminId] = useState(1);
 
@@ -36,8 +36,8 @@ const VentanillaScreen = () => {
   const cargarVentanilla = async () => {
     try {
       const respuesta = await axios.get(urlVenta);
-      setVentanilla(respuesta.data);
-      console.log(respuesta.data)
+      setVentanilla(respuesta.data.data);
+      console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -58,22 +58,21 @@ const VentanillaScreen = () => {
   };
 
   /*Intento de modal */
-
-  const [isLoading, setIsLoading] = useState('');
   const [mode, setMode] = useState('');
   const [title, setTitle] = useState('');
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
   const handleShow = (mode, id, nombreVent, apePaternoVent, apeMaternoVent,
-    correoElectronico, passVent, status) => {
+    correoElectronico, pass, status) => {
     setId('');
     setNombreVent('');
     setApePaternoVent('');
     setApeMaternoVent('');
     setCorreoElectronico('');
-    setPassVent('');
+    setPass('');
     setStatus(true);
+    setChangePassword(false);
     setMode(mode);
     if (mode === "add") {
       setTitle('Registrar ventanilla');
@@ -84,10 +83,11 @@ const VentanillaScreen = () => {
       setApePaternoVent(apePaternoVent);
       setApeMaternoVent(apeMaternoVent);
       setCorreoElectronico(correoElectronico);
-      setPassVent(passVent);
-      setAdminId(adminId);
+      setPass(pass);
       setStatus(status);
-      
+      setChangePassword(changePassword);
+      setAdminId(adminId);
+      setMode(mode);
     }
     /*window.setTimeout(function(){
         document.getElementById(`nombre`).focus();
@@ -99,7 +99,7 @@ const VentanillaScreen = () => {
     var parametros;
     var metodo;
     var modo = mode; // Agregar variable local para guardar mode
-    if (![nombreVent, apePaternoVent, /*apeMaternoVent*/, correoElectronico, passVent].every(field => field !== '')) {
+    if (![nombreVent, apePaternoVent, /*apeMaternoVent*/, correoElectronico, pass].every(field => field !== '')) {
       Swal.fire({
         icon: 'warning',
         title: 'Llena todos los campos',
@@ -110,13 +110,13 @@ const VentanillaScreen = () => {
       if (modo === "add") {
         parametros = {
           nombreVent: nombreVent.trim(), apePaternoVent: apePaternoVent.trim(), apeMaternoVent: apeMaternoVent.trim(),
-          correoElectronico: correoElectronico.trim(), passVent: passVent.trim(), status: status, admin: { id: admin.id } 
+          correoElectronico: correoElectronico.trim(), pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId }
         };
         metodo = 'POST';
       } else {
         parametros = {
           id: id, nombreVent: nombreVent.trim(), apePaternoVent: apePaternoVent.trim(), apeMaternoVent: apeMaternoVent.trim(),
-          correoElectronico: correoElectronico.trim(), passVent: passVent.trim(), status: status, admin: { id: admin.id } 
+          correoElectronico: correoElectronico.trim(), pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId }
         };
         metodo = 'PUT';
       }
@@ -126,51 +126,17 @@ const VentanillaScreen = () => {
 
   const enviarSolicitud = async (metodo, parametros) => {
     if (metodo === 'PUT') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/ventanilla/${id}`, data: parametros })
+      await axios({ method: metodo, url: `http://localhost:8080/api/ventanillas/${id}`, data: parametros })
         .then(function (respuesta) {
           var hasError = respuesta.data.status;
           var msj = respuesta.data.message;
           Swal.fire({
             icon: 'success',
             iconColor: '#58BEC4',
-            title: 'Ventanilla actualizada correctamente',
+            title: msj,
             text: 'Ventanilla: ' + nombreVent + ' ' + apePaternoVent,
             showConfirmButton: false,
-            timer: 1500
-          });
-          if (hasError === false) {
-            cargarAdmin();
-            handleClose();
-          }
-        })
-        .catch(function (error) {
-          Swal.fire({
-            icon: 'error',
-            iconColor: '#264B99',
-            title: 'Error en la petición',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          /*handleClose();
-          console.log(error);
-          Promesa cumple y sale
-          */
-        })
-        .finally(function () {
-          cargarVentanilla();
-          handleClose();
-        });
-    } else if (metodo === 'DELETE') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/ventanilla/${parametros.id}` })
-        .then(function (respuesta) {
-          var hasError = respuesta.data.status;
-          var msj = respuesta.data.message;
-          Swal.fire({
-            icon: 'success',
-            iconColor: '#58BEC4',
-            title: 'Ventanilla eliminada correctamente',
-            showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
           if (hasError === false) {
             cargarVentanilla();
@@ -183,10 +149,8 @@ const VentanillaScreen = () => {
             iconColor: '#264B99',
             title: 'Error en la petición',
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
-          handleClose();
-          console.log(error);
         })
         .finally(function () {
           cargarVentanilla();
@@ -201,13 +165,21 @@ const VentanillaScreen = () => {
           Swal.fire({
             icon: 'success',
             iconColor: '#58BEC4',
-            title: 'Ventanilla registrada corrrectamente',
+            title: msj,
             text: 'Ventanilla: ' + nombreVent + ' ' + apePaternoVent,
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
           if (hasError === false) {
-            cargarAdmin();
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Intenta de nuevo',
+              text: msj,
+              showConfirmButton: false,
+              timer: 2000
+            });
+            cargarVentanilla();
             handleClose();
           }
         })
@@ -217,22 +189,25 @@ const VentanillaScreen = () => {
             iconColor: '#264B99',
             title: 'Error en la petición',
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
           /*handleClose();
           console.log(error);*/
         })
         .finally(function () {
-          cargarAdmin();
+          cargarVentanilla();
           handleClose();
         });
     }
 
   }
 
-  const deleteAdmin = (id) => {
+  const changeStatus = (id, nombreVent, apePaternoVent, apeMaternoVent,
+    correoElectronico, pass, status, changePassword) => {
+    const nuevoStatus = !status; // Cambiar el estado actual
+
     Swal.fire({
-      title: '¿Deseas eliminarlo?',
+      title: '¿Deseas cambiar el estado?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#58BEC4',
@@ -241,12 +216,57 @@ const VentanillaScreen = () => {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        setId(id);
-        enviarSolicitud('DELETE', { id: id });
-        Swal.fire(
-          '¡Eliminado con éxito!',
-          'success'
-        );
+        const data = {
+          id: id,
+          nombreVent: nombreVent,
+          apePaternoVent: apePaternoVent,
+          apeMaternoVent: apeMaternoVent,
+          correoElectronico: correoElectronico,
+          pass: pass,
+          status: nuevoStatus, // Asignar el nuevo estado
+          changePassword: changePassword
+        };
+
+        axios.patch(`http://localhost:8080/api/ventanillas/${id}`, data)
+          .then(function (respuesta) {
+            var hasError = respuesta.data.status;
+            var msj = respuesta.data.message;
+
+            let successMessage;
+
+            if (nuevoStatus) {
+              successMessage = 'Solicitante dado de alta correctamente';
+            } else {
+              successMessage = 'Solicitante dado de baja correctamente';
+            }
+
+            Swal.fire({
+              icon: 'success',
+              iconColor: '#58BEC4',
+              title: successMessage,
+              text: `Solicitante: ${nombreVent} ${apePaternoVent}`,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            if (hasError === false) {
+              cargarVentanilla();
+              handleClose();
+            }
+          })
+          .catch(function (error) {
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Error en la petición',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          })
+          .finally(function () {
+            cargarVentanilla();
+            handleClose();
+          });
       }
     });
   }
@@ -293,10 +313,10 @@ const VentanillaScreen = () => {
                 </tr>
                 <tr>
                   {/*<th>ID</th>*/}
-                  <th >Nombre</th>
-                  <th>Apellido Paterno</th>
-                  <th>Apellido Materno</th>
+                  <th >Nombre(s)</th>
+                  <th>Apellido(s)</th>
                   <th>Correo electrónico</th>
+                  <th>Estado</th>
                   <th></th>
                 </tr>
               </thead>
@@ -309,25 +329,42 @@ const VentanillaScreen = () => {
                   <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                     {/*<td className="rounded-border">{item.id}</td>*/}
                     <td className="rounded-border">{item.nombreVent}</td>
-                    <td className="rounded-border">{item.apePaternoVent}</td>
-                    <td className="rounded-border">{item.apeMaternoVent}</td>
+                    <td className="rounded-border">{item.apePaternoVent} {item.apeMaternoVent}</td>
                     <td className="rounded-border">{item.correoElectronico}</td>
+                    <td className="rounded-border">{
+                      item.status ? (
+                        <Badge bg='success'>Alta</Badge>
+                      ) : (
+                        <Badge bg='danger'>Baja</Badge>)}
+                    </td>
                     <td style={{ background: '#2A4172', border: 'none' }}>
                       <button className="btn-b" style={{ marginRight: '5px' }}>
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
                           onClick={() => handleShow('edit', item.id, item.nombreVent, item.apePaternoVent,
-                            item.apeMaternoVent, item.correoElectronico, item.passVent, item.status)}
+                            item.apeMaternoVent, item.correoElectronico, item.pass, item.status, item.changePassword)}
                         />
                       </button>
-                      <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
-                        <FeatherIcon
-                          icon='trash'
-                          style={{ color: 'black' }}
-                          onClick={() => deleteAdmin(item.id)}
-                        />
-                      </button>
+                      {item.status ? (
+                        <button className="btn-b">
+                          <FeatherIcon
+                            icon='trash-2'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.nombreVent, item.apePaternoVent,
+                              item.apeMaternoVent, item.correoElectronico, item.pass, item.status, item.changePassword)}
+                          />
+                        </button>
+                      ) : (
+                        <button className="btn-inactive" >
+                          <FeatherIcon
+                            icon='pocket'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.nombreVent, item.apePaternoVent,
+                              item.apeMaternoVent, item.correoElectronico, item.pass, item.status, item.changePassword)}
+                          />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -388,7 +425,7 @@ const VentanillaScreen = () => {
               <Form.Group as={Col} md="7" controlId="validationCustom09">
                 <Form.Label style={{ color: '#2A4172' }}><b>Contraseña</b></Form.Label>
                 <Form.Control type={showPassword ? "text" : "password"} required
-                  value={passVent} onChange={(e) => setPassVent(e.target.value)}
+                  value={pass} onChange={(e) => setPass(e.target.value)}
                 />
               </Form.Group>
               <Form.Group as={Col} md="1" controlId="validationCustom10">

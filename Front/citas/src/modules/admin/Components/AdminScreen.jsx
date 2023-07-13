@@ -41,7 +41,6 @@ const AdminScreen = () => {
     };
 
     /*Intento de modal */
-
     const [isLoading, setIsLoading] = useState('');
     const [mode, setMode] = useState('');
     const [title, setTitle] = useState('');
@@ -326,7 +325,6 @@ const AdminScreen = () => {
                                                 <Badge bg='danger'>Baja</Badge>)}
                                             </td>
                                             <td style={{ background: '#2A4172', border: 'none' }}>
-
                                                 <button className="btn-b" style={{ marginRight: '5px' }}>
                                                     <FeatherIcon
                                                         icon='edit'

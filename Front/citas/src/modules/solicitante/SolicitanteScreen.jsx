@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 const SolicitanteScreen = () => {
 
   const navigate = useNavigate();
-  const urlVenta = `http://localhost:8080/api/solicitantes/`
+  const urlSoli = `http://localhost:8080/api/solicitantes/`
 
   /*Cargar Solicitante */
   const [solicitante, setSolicitante] = useState([]);
@@ -29,7 +29,7 @@ const SolicitanteScreen = () => {
   const [status, setStatus] = useState('');
   const [changePassword, setChangePassword] = useState('');
 
-  const [sessionId] = useState(1);
+  const [adminId, setAdminId] = useState(1);
 
   useEffect(() => {
     cargarSolicitante();
@@ -38,7 +38,7 @@ const SolicitanteScreen = () => {
 
   const cargarSolicitante = async () => {
     try {
-      const respuesta = await axios.get(urlVenta);
+      const respuesta = await axios.get(urlSoli);
       setSolicitante(respuesta.data.data);
       console.log(respuesta.data.data)
       //console.clear();
@@ -96,6 +96,7 @@ const SolicitanteScreen = () => {
       setPass(pass);
       setStatus(status);
       setChangePassword(changePassword);
+      setAdminId(adminId);
       setMode(mode);
     }
     /*window.setTimeout(function(){
@@ -121,7 +122,7 @@ const SolicitanteScreen = () => {
           nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
           matricula: matricula.trim(), carrera: carrera.trim(),
           correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
-          pass: pass.trim(), status: status, changePassword: changePassword, admin: sessionId[0]
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId}
         };
         metodo = 'POST';
       } else {
@@ -129,7 +130,7 @@ const SolicitanteScreen = () => {
           id: id, nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
           matricula: matricula.trim(), carrera: carrera.trim(),
           correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
-          pass: pass.trim(), status: status, changePassword: changePassword, admin: sessionId[0]
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId}
         };
         metodo = 'PUT';
       }
@@ -174,7 +175,7 @@ const SolicitanteScreen = () => {
           handleClose();
         });
     } else {
-      await axios({ method: metodo, url: urlVenta, data: parametros })
+      await axios({ method: metodo, url: urlSoli, data: parametros })
         .then(function (respuesta) {
 
           var hasError = respuesta.data.status;
@@ -206,7 +207,7 @@ const SolicitanteScreen = () => {
             iconColor: '#264B99',
             title: 'Error en la petición',
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
           });
           /*handleClose();*/
           console.log(error);
@@ -348,6 +349,7 @@ const SolicitanteScreen = () => {
                 </tr>
               </thead>
               <tbody>
+                
                 {filteredData && filteredData.length === 0 ? (
                   <tr>
                     <td colSpan="9" style={{ textAlign: 'center' }}>No hay registros</td>
@@ -361,8 +363,8 @@ const SolicitanteScreen = () => {
                     <td className="rounded-border">{item.carrera}</td>
                     <td className="rounded-border">{item.correoElectronico}</td>
                     {/*<td className="rounded-border">{item.telefono}</td>*/}
-                    <td className="rounded-border">{
-                      item.status ? (
+                    <td className="rounded-border">
+                      {item.status ? (
                         <Badge bg='success'>Alta</Badge>
                       ) : (
                         <Badge bg='danger'>Baja</Badge>)}

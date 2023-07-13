@@ -184,7 +184,7 @@ public class CitaService {
                  "<h1 style=\"color: #ff605c;\">¡Hola! "+ cita.getSolicitante().getNombre() + cita.getSolicitante().getApePaterno() +" </h1>"+
                  "<h4 style=\"color: #264B99;\">Tienes programado una cita para realizar tu servicio</h4>" +
                  "<img src='cid:logoImage' />" +
-                 "<h4 style=\"color: #58BEC4;\">El día " + cita.getFecha() +  " a las " + cita.getHora() + ", el tramite a realizar será " + cita.getServicio().getNombre() + ", y te atenderá " + cita.getVentanilla().getNombre() + cita.getVentanilla().getApePaterno()+ "</h4>" +
+                 "<h4 style=\"color: #58BEC4;\">El día " + cita.getFecha() +  " a las " + cita.getHora() + ", el tramite a realizar será " + cita.getServicio().getNomserv() + ", y te atenderá " + cita.getVentanilla().getNombreVent() + cita.getVentanilla().getApePaternoVent()+ "</h4>" +
                  "<h4 style=\"color: #BAB9BC;\">" +
                  "Costo: " + cita.getMontoPago()  +
                  "</h4>" +

@@ -16,11 +16,13 @@ const ServiceScreen = () => {
     /*Cargar Administradores */
     const [servicio, setServicio] = useState([]);
     const [id, setIdService] = useState('');
-    const [nombre, setNombre] = useState('');
+    const [nomserv, setNomserv] = useState('');
     const [descripcion, setDescripcion] = useState('');
-    const [documentosRequeridos, setDocumentacion] = useState('');
+    const [documentos, setDocumentos] = useState('');
     const [costo, setCosto] = useState('');
     const [status, setStatus] = useState('');
+
+    const [adminId, setAdminId] = useState(1);
 
     useEffect(() => {
         cargarServicios();
@@ -30,8 +32,8 @@ const ServiceScreen = () => {
     const cargarServicios = async () => {
         try {
             const respuesta = await axios.get(urlService);
-            setServicio(respuesta.data);
-            console.log(respuesta.data)
+            setServicio(respuesta.data.data);
+            console.log(respuesta.data.data)
             //console.clear();
         } catch (error) {
             console.log('Error:', error.message);
@@ -41,7 +43,7 @@ const ServiceScreen = () => {
     const cargarAdmin = async () => {
         try {
             const respuesta = await axios.get(`http://localhost:8080/api/administrador/`);
-            setAdmin(respuesta.data);
+            setAdmin(respuesta.data.data);
             //console.log(respuesta.data)
             //console.clear();
         } catch (error) {
@@ -58,13 +60,13 @@ const ServiceScreen = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
 
-    const handleShow = (mode, id, nombre, descripcion, documentosRequeridos, costo, status) => {
+    const handleShow = (mode, id, nomserv, descripcion, documentos, costo, status) => {
         setIdService('');
-        setNombre('');
+        setNomserv('');
         setDescripcion('');
-        setDocumentacion('');
+        setDocumentos('');
         setCosto('');
-        setStatus(status);
+        setStatus(true);
         setMode(mode);
 
         if (mode === "add") {
@@ -72,11 +74,12 @@ const ServiceScreen = () => {
         } else if (mode === "edit") {
             setTitle('Editar solicitante');
             setIdService(id);
-            setNombre(nombre);
+            setNomserv(nomserv);
             setDescripcion(descripcion);
-            setDocumentacion(documentosRequeridos);
+            setDocumentos(documentos);
             setCosto(costo);
             setStatus(status);
+            setAdminId(adminId);
             setMode(mode);
         }
         /*window.setTimeout(function(){
@@ -89,7 +92,7 @@ const ServiceScreen = () => {
         var parametros;
         var metodo;
         var modo = mode; // Agregar variable local para guardar mode
-        if (![nombre, descripcion, documentosRequeridos, costo].every(field => field !== '')) {
+        if (![nomserv, descripcion, documentos, costo].every(field => field !== '')) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Llena todos los campos',
@@ -99,14 +102,14 @@ const ServiceScreen = () => {
         } else {
             if (modo === "add") {
                 parametros = {
-                    nombre: nombre.trim(), descripcion: descripcion.trim(), documentosRequeridos: documentosRequeridos.trim(),
-                    costo: parseFloat(costo), status: status
+                    nomserv: nomserv.trim(), descripcion: descripcion.trim(), documentos: documentos.trim(),
+                    costo: parseFloat(costo), status: status, admin: { id: adminId }
                 };
                 metodo = 'POST';
             } else {
                 parametros = {
-                    nombre: nombre.trim(), descripcion: descripcion.trim(), documentosRequeridos: documentosRequeridos.trim(),
-                    costo: parseFloat(costo), status: status
+                    id: id, nomserv: nomserv.trim(), descripcion: descripcion.trim(), documentos: documentos.trim(),
+                    costo: parseFloat(costo), status: status, admin: { id: adminId }
                 };
                 metodo = 'PUT';
             }
@@ -125,7 +128,7 @@ const ServiceScreen = () => {
                         iconColor: '#58BEC4',
                         title: 'Servicio actualizado correctamente',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     if (hasError === false) {
                         cargarServicios();
@@ -138,7 +141,7 @@ const ServiceScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     /*handleClose();
                     console.log(error);
@@ -150,19 +153,28 @@ const ServiceScreen = () => {
                     handleClose();
                 });
 
-        } else if (metodo === 'DELETE') {
-            await axios({ method: metodo, url: `http://localhost:8080/api/servicios/${parametros.id}` })
+        } else {
+            await axios({ method: metodo, url: urlService, data: parametros })
                 .then(function (respuesta) {
+
                     var hasError = respuesta.data.status;
                     var msj = respuesta.data.message;
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
-                        title: 'Ventanilla eliminada correctamente',
+                        title: msj,
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                     if (hasError === false) {
+                        Swal.fire({
+                            icon: 'error',
+                            iconColor: '#264B99',
+                            title: 'Intenta de nuevo',
+                            text: msj,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
                         cargarServicios();
                         handleClose();
                     }
@@ -173,54 +185,24 @@ const ServiceScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
+                    /*handleClose();*/
                     console.log(error);
                 })
                 .finally(function () {
                     cargarServicios();
                     handleClose();
                 });
-        } else {
-            await axios({ method: metodo, url: urlService, data: parametros })
-                .then(function (respuesta) {
-
-                    var hasError = respuesta.data.status;
-                    var msj = respuesta.data.message;
-                    Swal.fire({
-                        icon: 'success',
-                        iconColor: '#58BEC4',
-                        title: 'Servicio registrado corrrectamente',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    if (hasError === false) {
-                        cargarAdmin();
-                        handleClose();
-                    }
-                })
-                .catch(function (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        iconColor: '#264B99',
-                        title: 'Error en la petición',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    /*handleClose();
-                    console.log(error);*/
-                })
-                .finally(function () {
-                    cargarAdmin();
-                    handleClose();
-                });
         }
 
     }
 
-    const deleteService = (id) => {
+    const changeStatus = (id, nomserv, descripcion, documentos, costo, status) => {
+        const nuevoStatus = !status; // Cambiar el estado actual
+
         Swal.fire({
-            title: '¿Deseas eliminarlo?',
+            title: '¿Deseas cambiar el estado?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#58BEC4',
@@ -229,22 +211,65 @@ const ServiceScreen = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                setIdService(id);
-                enviarSolicitud('DELETE', { id: id });
-                Swal.fire(
-                    '¡Eliminado con éxito!',
-                    'success'
-                );
+                const data = {
+                    id: id,
+                    nomserv: nomserv,
+                    descripcion: descripcion,
+                    documentos: documentos,
+                    costo: costo,
+                    status: nuevoStatus
+                };
+
+                axios.patch(`http://localhost:8080/api/servicios/`, data)
+                    .then(function (respuesta) {
+                        var hasError = respuesta.data.status;
+                        var msj = respuesta.data.message;
+
+                        let successMessage;
+
+                        if (nuevoStatus) {
+                            successMessage = 'Solicitante dado de alta correctamente';
+                        } else {
+                            successMessage = 'Solicitante dado de baja correctamente';
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            iconColor: '#58BEC4',
+                            title: successMessage,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+
+                        if (hasError === false) {
+                            cargarServicios();
+                            handleClose();
+                        }
+                    })
+                    .catch(function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            iconColor: '#264B99',
+                            title: 'Error en la petición',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    })
+                    .finally(function () {
+                        cargarServicios();
+                        handleClose();
+                    });
             }
         });
     }
 
+
     ///BUSCAR 
     const [searchTerm, setSearchTerm] = useState("");
     const filteredData = servicio.filter(item =>
-        item.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.nomserv.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.documentosRequeridos.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.documentos.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.costo.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -285,6 +310,7 @@ const ServiceScreen = () => {
                                     <th>Descripción del servicio</th>
                                     <th>Documentos requerido</th>
                                     <th>Costo</th>
+                                    <th>Estado</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -296,26 +322,44 @@ const ServiceScreen = () => {
                                 ) : (filteredData && filteredData.map((item) => (
                                     <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                                         {/*<td className="rounded-border">{item.id}</td>*/}
-                                        <td className="rounded-border">{item.nombre}</td>
+                                        <td className="rounded-border">{item.nomserv}</td>
                                         <td className="rounded-border" >{item.descripcion}</td>
-                                        <td className="rounded-border">{item.documentosRequeridos}</td>
+                                        <td className="rounded-border">{item.documentos}</td>
                                         <td className="rounded-border">{item.costo}</td>
+                                        <td className="rounded-border">
+                                            {item.status ? (
+                                                <Badge bg='success'>Alta</Badge>
+                                            ) : (
+                                                <Badge bg='danger'>Baja</Badge>)}
+                                        </td>
                                         <td style={{ background: '#2A4172', border: 'none' }}>
                                             <button className="btn-b" style={{ marginRight: '5px' }}>
                                                 <FeatherIcon
                                                     icon='edit'
                                                     style={{ color: 'black' }}
-                                                    onClick={() => handleShow('edit', item.id, item.nombre, item.descripcion,
-                                                        item.documentosRequeridos, item.costo, item.status)}
+                                                    onClick={() => handleShow('edit', item.id, item.nomserv,
+                                                        item.descripcion, item.documentos, item.costo, item.status)}
                                                 />
                                             </button>
-                                            <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
-                                                <FeatherIcon
-                                                    icon='trash'
-                                                    style={{ color: 'black' }}
-                                                    onClick={() => deleteService(item.id)}
-                                                />
-                                            </button>
+                                            {item.status ? (
+                                                <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
+                                                    <FeatherIcon
+                                                        icon='trash-2'
+                                                        style={{ color: 'black' }}
+                                                        onClick={() => changeStatus(item.id, item.nomserv,
+                                                            item.descripcion, item.documentos, item.costo, item.status)}
+                                                    />
+                                                </button>
+                                            ) : (
+                                                <button className="btn-inactive" /*style={{ marginRight: '5px' }}*/>
+                                                    <FeatherIcon
+                                                        icon='pocket'
+                                                        style={{ color: 'black' }}
+                                                        onClick={() => changeStatus(item.id, item.nomserv,
+                                                            item.descripcion, item.documentos, item.costo, item.status)}
+                                                    />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -343,7 +387,7 @@ const ServiceScreen = () => {
                                 <Form.Control
                                     required
                                     type="text"
-                                    value={nombre} onChange={(e) => setNombre(e.target.value)}
+                                    value={nomserv} onChange={(e) => setNomserv(e.target.value)}
                                 //placeholder="First name"
                                 />
                             </Form.Group>
@@ -366,7 +410,7 @@ const ServiceScreen = () => {
                             <Form.Group as={Col} md="6" controlId="validationCustom03">
                                 <Form.Label style={{ color: '#2A4172' }}><b>Documentos</b></Form.Label>
                                 <Form.Control as="textarea" rows={3} type="text" required
-                                    value={documentosRequeridos} onChange={(e) => setDocumentacion(e.target.value)} />
+                                    value={documentos} onChange={(e) => setDocumentos(e.target.value)} />
                             </Form.Group>
                             <Form.Group as={Col} md="6" controlId="validationCustom04">
                                 <Form.Label style={{ color: '#2A4172' }}><b>Costo</b></Form.Label>

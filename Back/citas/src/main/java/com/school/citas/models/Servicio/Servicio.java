@@ -33,23 +33,25 @@ public class Servicio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "nombre", nullable = false)
-    private String nombre;
+    @Column(name = "nomserv", nullable = false)
+    private String nomserv;
     @Column(name = "descripcion", nullable = false)
     private String descripcion;
-    @Column(name = "documentosRequeridos", nullable = false)
-    private String documentosRequeridos;
+    @Column(name = "documentos", nullable = false)
+    private String documentos;
     @Column(name = "costo", nullable = false)
     private double costo;
 
     @Column(nullable = false, columnDefinition = "tinyint default 1")
     private Boolean status;
 
-    @OneToMany(mappedBy = "servicio")
-    private List<Cita> citas;
-
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     @JsonBackReference
     private Administrador admin;
+
+    @OneToMany(mappedBy = "servicio")
+    private List<Cita> citas;
+
+
 }

@@ -23,9 +23,9 @@ public class ServicioDto {
     private String documentos;
     private double costo;
     private Boolean status;
-    private List<Cita> citas;
-    private Administrador admin;
 
+    private Administrador admin;
+    private List<Cita> citas;
     public Servicio getServicio(){
         return new Servicio(
                 getId(),
@@ -34,8 +34,9 @@ public class ServicioDto {
                 getDocumentos(),
                 getCosto(),
                 getStatus(),
-                getCitas(),
-                getAdmin()
+                getAdmin(),
+                getCitas()
+
         );
     }
 }

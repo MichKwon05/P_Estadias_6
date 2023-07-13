@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface ServicioRepository extends JpaRepository<Servicio, Long> {
     @Modifying
     @Query(
-            value = "UPDATE servicios SET status = :status WHERE id = :id",
+            value = "UPDATE servicio SET status = :status WHERE id = :id",
             nativeQuery = true
     )
     int updateStatusById(

@@ -185,7 +185,7 @@ public class VentanillaService {
         "</div>" +
         "<div class=\"card__content\">" +
         "<div>" +
-        "<h1 style=\"color: #ff605c;\">¡Hola! "+ ventanilla.getNombre() + ventanilla.getApePaterno() +" </h1>" +
+        "<h1 style=\"color: #ff605c;\">¡Hola! "+ ventanilla.getNombreVent()+" " + ventanilla.getApePaternoVent() +" </h1>" +
         "<h4 style=\"color: #264B99;\">Bienvenido al Sistema CITAT</h4>" +
         "<h4 style=\"color: #58BEC4;\">Usuario Ventanilla</h4>" +
         "<img src='cid:logoImage' />" +
