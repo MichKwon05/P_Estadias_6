@@ -6,9 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.school.citas.models.Horario.HorarioVentanilla;
 import com.school.citas.models.Ventanilla.Ventanilla;
+
+import javax.persistence.Column;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,9 +20,11 @@ import com.school.citas.models.Ventanilla.Ventanilla;
 public class HorarioDto {
     private Long id;
     private String diaSemana;
-    private LocalDateTime horarioInicio;
-    private LocalDateTime horarioFin;
-    private int cantidadRepeticiones;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
+    //private LocalDateTime horarioInicio;
+    //private LocalDateTime horarioFin;
+   // private int cantidadRepeticiones;
     private Boolean status;
     private Ventanilla ventanilla;
 
@@ -27,9 +32,9 @@ public class HorarioDto {
         return new HorarioVentanilla(
                 getId(),
                 getDiaSemana(),
-                getHorarioInicio(),
-                getHorarioFin(),
-                getCantidadRepeticiones(),
+                getHoraInicio(),
+                getHoraFin(),
+                //getCantidadRepeticiones(),
                 getStatus(),
                 getVentanilla()
         );

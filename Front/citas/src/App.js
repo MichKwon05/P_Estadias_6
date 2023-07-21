@@ -24,14 +24,25 @@ import UserMain from "./modules/admin/Components/UserMain";
 import ServiceScreen from "./modules/servicios/ServiceScreen";
 import Error from "./shared/plugins/Error";
 import Animation from "./shared/plugins/Animation";
-
+import HoraVentScreen from "./modules/horario/HoraVentScreen";
+import AdminRoutes from "./modules/routes/AdminRoutes";
+import VentanillaRoutez from "./modules/routes/VentanillaRoutez.jsx"
 
 function App() {
   useEffect(() => {
     document.title = "CITAT"; // Cambia el nombre de la pestaña aquí
   }, []);
   return (
-    /*Admin*/
+    <BrowserRouter>
+        <Routes>
+            <Route path="/" element={<Login/>} />
+            <Route path="login" element={<Login />} />
+            <Route path="adminDashboard/*" element={<AdminRoutes />} />
+            <Route path="ventanillaDashBoard/*" element={<VentanillaRoutez />} />
+        </Routes>
+    </BrowserRouter>
+    /*<Login/>*/
+    /*Admin
     <BrowserRouter>
       <AdminNav />
       <Routes>
@@ -45,7 +56,7 @@ function App() {
         <Route path="/*" element={<Error/>} />
       </Routes>
       <Animation/>
-    </BrowserRouter>
+    </BrowserRouter>*/
 
     /*Ventanilla 
     <BrowserRouter>
@@ -54,7 +65,7 @@ function App() {
         <Route path="/" element={<MainVentanilla />} />
         <Route path="/homeVentanilla" element={<MainVentanilla />} />
         <Route path="/cita" element={<CitaScreen />} />
-        <Route path="/horario" element={<HorarioScreen />} />
+        <Route path="/horario" element={<HoraVentScreen />} />
         <Route path="/*" element={<Error/>} />
       </Routes>
       <Animation/>

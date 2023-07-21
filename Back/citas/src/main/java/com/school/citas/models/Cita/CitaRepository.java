@@ -15,11 +15,11 @@ import org.springframework.stereotype.Repository;
 public interface CitaRepository extends JpaRepository<Cita, Long> {
     @Modifying
     @Query(
-            value = "UPDATE citas SET status = :status WHERE id = :id",
+            value = "UPDATE cita SET atendida = :atendida WHERE id = :id",
             nativeQuery = true
     )
-    int updateStatusById(
-            @Param("status") Boolean status,
+    int updateAtendidaById(
+            @Param("atendida") Boolean atendida,
             @Param("id") Long id
     );
 

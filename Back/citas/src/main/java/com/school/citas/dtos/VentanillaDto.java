@@ -2,6 +2,7 @@ package com.school.citas.dtos;
 
 import com.school.citas.models.Administrador.Administrador;
 import com.school.citas.models.Cita.Cita;
+import com.school.citas.models.Horario.HorarioVentanilla;
 import com.school.citas.models.Ventanilla.Ventanilla;
 
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class VentanillaDto {
     private Boolean changePassword;
 
     private Administrador admin;
+    private List<HorarioVentanilla> horarioventanilla;
     private List<Cita> citas;
 
     public Ventanilla getVentanilla(){
@@ -47,6 +49,7 @@ public class VentanillaDto {
                 getStatus(),
                 getChangePassword(),
                 getAdmin(),
+                getHorarioventanilla(),
                 getCitas()
         );
     }

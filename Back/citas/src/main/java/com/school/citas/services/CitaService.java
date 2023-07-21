@@ -242,7 +242,7 @@ public class CitaService {
             );
         }
         return new CustomResponse<>(
-                this.citaRepository.updateStatusById(
+                this.citaRepository.updateAtendidaById(
                         cita.isAtendida(), cita.getId()
                 )==1,
                 false,

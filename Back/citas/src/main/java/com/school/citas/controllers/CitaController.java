@@ -90,7 +90,7 @@ public class CitaController {
         );
     }
 
-    @PatchMapping("/")
+    @PatchMapping("/{id}")
     public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
             @RequestBody CitaDto citaDto
     ){

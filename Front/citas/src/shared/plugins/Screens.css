@@ -87,6 +87,14 @@ input[type='text'] {
   border-radius: 5px;
 }
 
+.btn-alert{
+  background-color: rgb(228, 181, 28);
+  color: black;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
 .table td {
   padding: 0;
   text-align: center;

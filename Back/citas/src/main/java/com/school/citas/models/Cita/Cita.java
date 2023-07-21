@@ -3,9 +3,7 @@ package com.school.citas.models.Cita;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.school.citas.models.Servicio.Servicio;
 import com.school.citas.models.Solicitante.Solicitante;
 import com.school.citas.models.Ventanilla.Ventanilla;
@@ -35,8 +33,12 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "fecha", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate fecha;
-    @Column(name = "hora", nullable = false)
+    /*@Column(name = "fecha", nullable = false)
+    private LocalDate fecha;*/
+    @Column(name = "hora", columnDefinition = "time", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime hora;
     @Column(name = "numeroVentanilla", nullable = false)
     private int numeroVentanilla;
@@ -44,17 +46,19 @@ public class Cita {
     private String documentosAnexos;
     @Column(name = "montoPago", nullable = false)
     private double montoPago;
-    @Column(name = "atendida", nullable = false, columnDefinition = "tinyint default 1")
+    //@Column(name = "atendida", nullable = false, columnDefinition = "tinyint default 1")
+    @Column(name = "atendida", nullable = false, columnDefinition = "tinyint default 0")
     private boolean atendida;
 
     @ManyToOne
+    @JoinColumn(name = "servicio_id")
     private Servicio servicio;
     
     @ManyToOne
+    @JoinColumn(name = "ventanilla_id")
     private Ventanilla ventanilla;
 
     @ManyToOne
     @JoinColumn(name = "solicitante_id")
-    @JsonBackReference
     private Solicitante solicitante;
 }

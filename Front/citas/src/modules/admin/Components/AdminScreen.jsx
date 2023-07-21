@@ -366,7 +366,6 @@ const AdminScreen = () => {
                 </div>
             </div>
 
-
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton className='titleModal' style={{ backgroundColor: '#58BEC4', color: 'white' }}>
                     <Modal.Title>{title}</Modal.Title>

@@ -4,24 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Modal, Card, Col, Row, Badge, Button, Form, InputGroup } from 'react-bootstrap'
 import DataTable, { createTheme } from 'react-data-table-component'
 import '../../../shared/plugins/Screens.css'
+
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import FeatherIcon from 'feather-icons-react/build/FeatherIcon'
 import Swal from 'sweetalert2';
+import { format, parseISO } from 'date-fns';
 
 const HorarioScreen = () => {
 
   const navigate = useNavigate();
-  const urlHorario = `http://localhost:8080/api/horarios-ventanilla/`
+  const urlHorario = `http://localhost:8080/api/horarios/`
 
   /*Cargar Ventanilla */
   const [horario, setHorario] = useState([]);
-  const [ventanilla, setVentanilla] = useState([]);
+  const [venta, setVentanilla] = useState([]);
 
   const [id, setId] = useState('');
   const [diaSemana, setDia] = useState('');
   const [horarioInicio, setInicio] = useState('');
   const [horarioFin, setFin] = useState('');
-  const [cantidadRepeticiones, setRepeticion] = useState('');
+  //const [cantidadRepeticiones, setRepeticion] = useState('');
   const [status, setStatus] = useState('');
+
+  const [ventanillaId, setVentaId] = useState(2);
 
   useEffect(() => {
     cargarHorarios();
@@ -31,8 +37,8 @@ const HorarioScreen = () => {
   const cargarHorarios = async () => {
     try {
       const respuesta = await axios.get(urlHorario);
-      setHorario(respuesta.data);
-      console.log(respuesta.data)
+      setHorario(respuesta.data.data);
+      console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -41,8 +47,8 @@ const HorarioScreen = () => {
 
   const cargarVentanilla = async () => {
     try {
-      const respuesta = await axios.get(`http://localhost:8080/api/ventanilla/`);
-      setVentanilla(respuesta.data);
+      const respuesta = await axios.get(`http://localhost:8080/api/ventanillas/`);
+      setVentanilla(respuesta.data.data);
       //console.log(respuesta.data)
       //console.clear();
     } catch (error) {
@@ -59,25 +65,32 @@ const HorarioScreen = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
-  const handleShow = (mode, id, diaSemana, horarioInicio, horarioFin,
-    cantidadRepeticiones, status) => {
+  // Agrega el estado para el DatePicker
+  const [selectedDate, setSelectedDate] = useState(null);
+  // En el evento onChange del DatePicker, actualiza el estado selectedDate
+  const handleDatePickerChange = (date) => {
+    setSelectedDate(date);
+  }
+
+  const handleShow = (mode, id, diaSemana, horarioInicio, horarioFin, status) => {
     setId('');
     setDia('');
     setInicio('');
     setFin('');
-    setRepeticion('');
-    setStatus(status);
+    //setRepeticion('');
+    setStatus(true);
     setMode(mode);
     if (mode === "add") {
       setTitle('Registrar horario');
     } else if (mode === "edit") {
       setTitle('Editar horario');
       setId(id);
-      setDia(diaSemana);
-      setInicio(horarioInicio);
-      setFin(horarioFin);
-      setRepeticion(cantidadRepeticiones);
+      setDia(format(parseISO(diaSemana), 'EEEE')); 
+      setInicio(parseISO(horarioInicio));
+      setFin(parseISO(horarioFin));
+      //setRepeticion(cantidadRepeticiones);
       setStatus(status);
+      setVentaId(ventanillaId);
       setMode(mode);
     }
     /*window.setTimeout(function(){
@@ -90,7 +103,7 @@ const HorarioScreen = () => {
     var parametros;
     var metodo;
     var modo = mode; // Agregar variable local para guardar mode
-    if (![diaSemana, horarioInicio, horarioFin, cantidadRepeticiones].every(field => field !== '')) {
+    if (![diaSemana, horarioInicio, horarioFin].every(field => field !== '')) {
       Swal.fire({
         icon: 'warning',
         title: 'Llena todos los campos',
@@ -103,17 +116,18 @@ const HorarioScreen = () => {
           diaSemana: diaSemana.trim(),
           horarioInicio: horarioInicio,
           horarioFin: horarioFin,
-          cantidadRepeticiones: cantidadRepeticiones,
-          status: status
+          status: status,
+          ventanilla: { id: ventanillaId }
         };
         metodo = 'POST';
       } else {
         parametros = {
+          id: id,
           diaSemana: diaSemana.trim(),
           horarioInicio: horarioInicio,
           horarioFin: horarioFin,
-          cantidadRepeticiones: cantidadRepeticiones,
-          status: status
+          status: status,
+          ventanilla: { id: ventanillaId }
         };
         metodo = 'PUT';
       }
@@ -123,7 +137,7 @@ const HorarioScreen = () => {
 
   const enviarSolicitud = async (metodo, parametros) => {
     if (metodo === 'PUT') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/horarios-ventanilla/${id}`, data: parametros })
+      await axios({ method: metodo, url: `http://localhost:8080/api/horarios/${id}`, data: parametros })
         .then(function (respuesta) {
           var hasError = respuesta.data.status;
           ///var msj = respuesta.data.message;
@@ -157,37 +171,6 @@ const HorarioScreen = () => {
           handleClose();
         });
 
-    } else if (metodo === 'DELETE') {
-      await axios({ method: metodo, url: `http://localhost:8080/api/horarios-ventanilla/${parametros.id}` })
-        .then(function (respuesta) {
-          var hasError = respuesta.data.status;
-          var msj = respuesta.data.message;
-          Swal.fire({
-            icon: 'success',
-            iconColor: '#58BEC4',
-            title: 'Horario eliminado correctamente',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          if (hasError === false) {
-            cargarHorarios();
-            handleClose();
-          }
-        })
-        .catch(function (error) {
-          Swal.fire({
-            icon: 'error',
-            iconColor: '#264B99',
-            title: 'Error en la petición',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          console.log(error);
-        })
-        .finally(function () {
-          cargarHorarios();
-          handleClose();
-        });
     } else {
       await axios({ method: metodo, url: urlHorario, data: parametros })
         .then(function (respuesta) {
@@ -225,9 +208,10 @@ const HorarioScreen = () => {
 
   }
 
-  const deleteHorario = (id) => {
+  const changeStatus = (id, diaSemana, horarioInicio, horarioFin, status) => {
+    const nuevoStatus = !status; // Cambiar el estado actual
     Swal.fire({
-      title: '¿Deseas eliminarlo?',
+      title: '¿Deseas cambiar el estado?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#58BEC4',
@@ -236,12 +220,53 @@ const HorarioScreen = () => {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        setId(id);
-        enviarSolicitud('DELETE', { id: id });
-        Swal.fire(
-          '¡Eliminado con éxito!',
-          'success'
-        );
+        const data = {
+          id: id,
+          diaSemana,
+          horarioInicio: horarioInicio,
+          horarioFin: horarioFin,
+          status: nuevoStatus
+        };
+
+        axios.patch(`http://localhost:8080/api/horarios/${id}`, data)
+          .then(function (respuesta) {
+            var hasError = respuesta.data.status;
+            var msj = respuesta.data.message;
+
+            let successMessage;
+
+            if (nuevoStatus) {
+              successMessage = 'Solicitante dado de alta correctamente';
+            } else {
+              successMessage = 'Solicitante dado de baja correctamente';
+            }
+
+            Swal.fire({
+              icon: 'success',
+              iconColor: '#58BEC4',
+              title: successMessage,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            if (hasError === false) {
+              cargarHorarios();
+              handleClose();
+            }
+          })
+          .catch(function (error) {
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Error en la petición',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          })
+          .finally(function () {
+            cargarHorarios();
+            handleClose();
+          });
       }
     });
   }
@@ -291,7 +316,7 @@ const HorarioScreen = () => {
                   <th>Día de la semana </th>
                   <th>Hora de Inicio</th>
                   <th>Hora de Fin</th>
-                  <th>Cantidad de repeticiones</th>
+                  <th>Estado</th>
                   <th></th>
                 </tr>
               </thead>
@@ -306,23 +331,40 @@ const HorarioScreen = () => {
                     <td className="rounded-border">{item.diaSemana}</td>
                     <td className="rounded-border">{item.horarioInicio}</td>
                     <td className="rounded-border">{item.horarioFin}</td>
-                    <td className="rounded-border">{item.cantidadRepeticiones}</td>
+                    <td className="rounded-border">
+                      {item.status ? (
+                        <Badge bg='success'>Alta</Badge>
+                      ) : (
+                        <Badge bg='danger'>Baja</Badge>)}
+                    </td>
                     <td style={{ background: '#2A4172', border: 'none' }}>
                       <button className="btn-b" style={{ marginRight: '5px' }}>
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
                           onClick={() => handleShow('edit', item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
-                            item.cantidadRepeticiones, item.status)}
+                            item.status)}
                         />
                       </button>
-                      <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
-                        <FeatherIcon
-                          icon='trash'
-                          style={{ color: 'black' }}
-                          onClick={() => deleteHorario(item.id)}
-                        />
-                      </button>
+                      {item.status ? (
+                        <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='trash-2'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
+                              item.status)}
+                          />
+                        </button>
+                      ) : (
+                        <button className="btn-inactive" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='pocket'
+                            style={{ color: 'black' }}
+                            onClick={() => changeStatus(item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
+                              item.status)}
+                          />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -345,35 +387,33 @@ const HorarioScreen = () => {
           <Form /*noValidate validated={validated}*/ onSubmit={handleSubmit}>
             <Row className="mb-3">
               <Form.Group as={Col} md="6" controlId="validationCustom01">
-                <Form.Label style={{ color: '#2A4172' }}><b>Día de la semana</b></Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  value={diaSemana} onChange={(e) => setDia(e.target.value)}
-                />
+                <Form.Label>{diaSemana}</Form.Label>
                 {/*<Form.Control.Feedback>Completado</Form.Control.Feedback>*/}
               </Form.Group>
               <Form.Group as={Col} md="6" controlId="validationCustom02">
                 <Form.Label style={{ color: '#2A4172' }}><b>Hora de Inicio</b></Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  value={horarioInicio} onChange={(e) => setInicio(e.target.value)}
-                //placeholder="Last name"
+                <DatePicker
+                  selected={horarioInicio}
+                  onChange={(date) => setInicio(date)}
+                  showTimeSelect
+                  dateFormat="yyyy-MM-dd HH:mm" // Ajusta el formato aquí
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
                 />
-
               </Form.Group>
             </Row>
             <Row className="mb-3">
               <Form.Group as={Col} md="6" controlId="validationCustom03">
                 <Form.Label style={{ color: '#2A4172' }}><b>Horario de Fin</b></Form.Label>
-                <Form.Control type="text" required
-                  value={horarioFin} onChange={(e) => setFin(e.target.value)} />
-              </Form.Group>
-              <Form.Group as={Col} md="6" controlId="validationCustom04">
-                <Form.Label style={{ color: '#2A4172' }}><b>Cantidad de repeticiones</b></Form.Label>
-                <Form.Control type="text" required
-                  value={cantidadRepeticiones} onChange={(e) => setRepeticion(e.target.value)} />
+                <DatePicker
+                  selected={horarioFin}
+                  onChange={(date) => setFin(date)}
+                  showTimeSelect
+                  dateFormat="yyyy-MM-dd HH:mm" // Ajusta el formato aquí
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                />
+
               </Form.Group>
             </Row>
 
@@ -390,6 +430,5 @@ const HorarioScreen = () => {
     </>
   )
 }
-
 
 export default HorarioScreen

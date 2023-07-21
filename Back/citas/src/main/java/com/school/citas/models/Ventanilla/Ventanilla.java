@@ -17,6 +17,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.school.citas.models.Horario.HorarioVentanilla;
+import com.school.citas.models.Servicio.Servicio;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +55,10 @@ public class Ventanilla {
     @JoinColumn(name = "admin_id", nullable = false)
     @JsonBackReference
     private Administrador admin;
+
+    @OneToMany(mappedBy = "ventanilla")
+    private List<HorarioVentanilla> horarioventanilla;
+
     @OneToMany(mappedBy = "ventanilla")
     private List<Cita> citas;
 

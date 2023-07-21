@@ -16,7 +16,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/horarios-ventanilla/")
+@RequestMapping("/api/horarios/")
 @CrossOrigin(origins = {"*"})
 public class HorarioVentanillaController {
 
@@ -24,7 +24,7 @@ public class HorarioVentanillaController {
     private HorarioVentanillaService horarioVentanillaService;
 
     ///Obtener todos los horarios
-    @GetMapping("/getAll")
+    @GetMapping("/")
     public ResponseEntity<CustomResponse<List<HorarioVentanilla>>> getAll() {
         return new ResponseEntity<>(
                 this.horarioVentanillaService.getAll(),
@@ -76,7 +76,7 @@ public class HorarioVentanillaController {
     }
 
     //Modificar un horario
-    @PutMapping("/")
+    @PutMapping("/{id}")
     public ResponseEntity<CustomResponse<HorarioVentanilla>> update(
             @RequestBody HorarioDto horarioDto, @Valid BindingResult result) {
         if (result.hasErrors()) {
@@ -92,7 +92,7 @@ public class HorarioVentanillaController {
     }
 
     //Modificar el status de una categoría
-    @PatchMapping("/")
+    @PatchMapping("/{id}")
     public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(
             @RequestBody HorarioDto horarioDto) {
         return new ResponseEntity<>(

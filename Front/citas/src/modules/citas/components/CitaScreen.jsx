@@ -1,73 +1,248 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Container, Modal, Card, Col, Row, Badge, Button, Form, InputGroup } from 'react-bootstrap'
 import DataTable, { createTheme } from 'react-data-table-component'
 import '../../../shared/plugins/Screens.css'
 import FeatherIcon from 'feather-icons-react/build/FeatherIcon'
+import Swal from 'sweetalert2';
 
 const CitaScreen = () => {
 
-  /*Cargar Ventanilla */
-  const [data, setData] = useState([
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true },
-    { id: 1, name: 'Rafael', apellido1: 'Rodriguez', apellido2: 'Trejo', email: 'rafatrejo1@gmail.com', contrasena: 'rafa12', status: true }
+  const navigate = useNavigate();
+  const urlCita = `http://localhost:8080/api/citas/`
 
-  ]);
-  const [idAdmi, setIDAdmin] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [apellidoM, setApellidoM] = useState('');
-  const [apellidoP, setApellidoP] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [password, setPassword] = useState('');
-  const [status, setStatus] = useState('');
+  /*Cargar Ventanilla */
+  const [citas, setCitas] = useState([]);
+  const [venta, setVentanilla] = useState([]);
+
+  const [id, setId] = useState('');
+  const [fecha, setFecha] = useState('');
+  const [hora, setHora] = useState('');
+  const [numeroVentanilla, setNumeroVentanilla] = useState('');
+  const [documentosAnexos, setDocumentosAnexos] = useState('');
+  const [montoPago, setMontoPago] = useState('');
+  const [atendida, setAtendida] = useState('');
+
+  const [ventanillaId, setVentaId] = useState(2);
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleStatusChange = (id) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: item.status === 'Activo' ? 'Inactivo' : 'Activo' } : item
-      )
-    );
+  useEffect(() => {
+    cargarCitas();
+    cargarVentanilla();
+  }, []);
+  const cargarCitas = async () => {
+    try {
+      const respuesta = await axios.get(urlCita);
+      setCitas(respuesta.data.data);
+      console.log(respuesta.data.data)
+      //console.clear();
+    } catch (error) {
+      console.log('Error:', error.message);
+    }
   };
-
-  const handleEdit = (id) => {
-    // Lógica para editar un elemento
-    console.log('Editar elemento con ID:', id);
+  const cargarVentanilla = async () => {
+    try {
+      const respuesta = await axios.get(`http://localhost:8080/api/ventanillas/`);
+      setVentanilla(respuesta.data.data);
+      //console.log(respuesta.data)
+      //console.clear();
+    } catch (error) {
+      console.log('Error:', error.message);
+      // Otro manejo de errores
+    }
   };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   /*Intento de modal */
-
   const [isLoading, setIsLoading] = useState('');
   const [mode, setMode] = useState('');
   const [title, setTitle] = useState('');
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
-  const handleShow = (mode) => {
-
-    if (mode === "look") {
-      setTitle('Datos de la cita');
-
+  const handleShow = (mode, id, fecha, hora, numeroVentanilla, documentosAnexos, montoPago, atendida) => {
+    if (mode === "view") {
+      setTitle('Cita atendida');
+      setId(id);
+      setFecha(fecha);
+      setHora(hora);
+      setNumeroVentanilla(numeroVentanilla);
+      setDocumentosAnexos(documentosAnexos);
+      setMontoPago(montoPago);
+      setAtendida(atendida);
+      setMode(mode);
+    } else if (mode === "edit") {
+      setTitle('Cita por atender');
+      setId(id);
+      setFecha(fecha);
+      setHora(hora);
+      setNumeroVentanilla(numeroVentanilla);
+      setDocumentosAnexos(documentosAnexos);
+      setMontoPago(montoPago);
+      setAtendida(atendida);
+      setMode(mode);
     }
     /*window.setTimeout(function(){
         document.getElementById(`nombre`).focus();
     },500);*/
     setShow(true);
   }
+
+  const validar = (e) => {
+    var parametros;
+    var metodo;
+    var modo = mode; // Agregar variable local para guardar mode
+
+    if (modo === "edit") {
+      parametros = {
+        id: id,
+        fecha: fecha,
+        hora: hora,
+        numeroVentanilla: numeroVentanilla,
+        montoPago: montoPago,
+        atendida: atendida,
+        ventanilla: { id: ventanillaId }
+      };
+      metodo = 'PATCH';
+    }
+    //enviarSolicitud(metodo, parametros);
+
+  }
+
+  /*const enviarSolicitud = async (metodo, parametros) => {
+    if (metodo === 'PATCH') {
+      const nuevoStatus = !atendida; // Cambiar el estado actual
+      Swal.fire({
+        title: '¿Deseas cambiar el estado?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#58BEC4',
+        cancelButtonColor: '#264B99',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const data = {
+            id: id,
+            fecha: fecha,
+            hora: hora,
+            numeroVentanilla: numeroVentanilla,
+            documentosAnexos: documentosAnexos,
+            montoPago: montoPago,
+            atendida: nuevoStatus
+          };
+
+          axios.patch(`http://localhost:8080/api/citas/${id}`, data)
+            .then(function (respuesta) {
+              var hasError = respuesta.data.status;
+              var msj = respuesta.data.message;
+
+              let successMessage;
+
+              if (nuevoStatus) {
+                successMessage = 'Cita atendida correctamente';
+              } else {
+                successMessage = 'Cita Error';
+              }
+
+              Swal.fire({
+                icon: 'success',
+                iconColor: '#58BEC4',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 2000
+              });
+
+              if (hasError === false) {
+                cargarCitas();
+                handleClose();
+              }
+            })
+            .catch(function (error) {
+              Swal.fire({
+                icon: 'error',
+                iconColor: '#264B99',
+                title: 'Error en la petición',
+                showConfirmButton: false,
+                timer: 2000
+              });
+            })
+            .finally(function () {
+              cargarCitas();
+              handleClose();
+            });
+        }
+      });
+    }
+  }*/
+
+  const changeStatus = (id, atendida) => {
+    const nuevoStatus = !atendida; // Cambiar el estado actual
+    Swal.fire({
+      title: '¿Seguro de atender la cita?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#58BEC4',
+      cancelButtonColor: '#264B99',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const data = {
+          id: id,
+          atendida: nuevoStatus
+        };
+
+        axios.patch(`http://localhost:8080/api/citas/${id}`, data)
+          .then(function (respuesta) {
+            var hasError = respuesta.data.status;
+            var msj = respuesta.data.message;
+
+            let successMessage;
+
+            if (nuevoStatus) {
+              successMessage = 'Cita atendida correctamente';
+            } else {
+              successMessage = 'Cita Error';
+            }
+
+            Swal.fire({
+              icon: 'success',
+              iconColor: '#58BEC4',
+              title: successMessage,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            if (hasError === false) {
+              cargarCitas();
+              handleClose();
+            }
+          })
+          .catch(function (error) {
+            Swal.fire({
+              icon: 'error',
+              iconColor: '#264B99',
+              title: 'Error en la petición',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          })
+          .finally(function () {
+            cargarCitas();
+            handleClose();
+          });
+      }
+    });
+  }
+
+  ///BUSCAR 
+  const filteredData = citas.filter(item =>
+    item.fecha.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.numeroVentanilla.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.montoPago.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   /// VALIDAR CON DEFAULT
   const [validated, setValidated] = useState(false);
@@ -97,43 +272,59 @@ const CitaScreen = () => {
           <div className="table-wrapper">
             <table className="table rounded-border">
               <thead style={{ textAlign: 'center' }}>
-              <tr>
+                <tr>
                   <th colSpan="7" style={{ fontSize: '24px', fontWeight: 'bold' }}>CITAS</th>
                 </tr>
                 <tr>
                   {/*<th>ID</th>*/}
-                  <th>Matrícula solicitante</th>
+                  <th>No. Ventanilla</th>
                   <th>Fecha</th>
                   <th>Hora</th>
-                  {/*<th>Número V</th>*/}
-                  <th>Servicio</th>
-                  <th>Documento</th>
-                  <th>Precio</th>
+                  <th>Documentos</th>
+                  <th>Monto Pago</th>
+                  <th>Estado</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {data.length === 0 ? (
+                {filteredData && filteredData.length === 0 ? (
                   <tr>
                     <td colSpan="9" style={{ textAlign: 'center' }}>No hay registros</td>
                   </tr>
-                ) : (data.map((item) => (
+                ) : (filteredData && filteredData.map((item) => (
                   <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                     {/*<td className="rounded-border">{item.id}</td>*/}
-                    <td className="rounded-border"></td>
-                    <td className="rounded-border"></td>
-                    <td className="rounded-border"></td>
-                    <td className="rounded-border"></td>
-                    <td className="rounded-border"></td>
-                    <td className="rounded-border"></td>
+                    <td className="rounded-border">{item.numeroVentanilla}</td>
+                    <td className="rounded-border">{item.fecha}</td>
+                    <td className="rounded-border">{item.hora}</td>
+                    <td className="rounded-border">{item.documentosAnexos}</td>
+                    <td className="rounded-border">{item.montoPago}</td>
+                    <td className="rounded-border">
+                      {item.atendida ? (
+                        <Badge bg='success'>Atendida</Badge>
+                      ) : (
+                        <Badge bg='danger'>En espera</Badge>)}
+                    </td>
                     <td style={{ background: '#2A4172', border: 'none' }}>
-                      <button className="btn-b">
-                        <FeatherIcon
-                          icon='clipboard'
-                          style={{ color: 'black' }}
-                          onClick={() => handleShow('look')}
-                        />
-                      </button>
+                      {item.atendida ? (
+                        <button className="btn-b" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='check-circle'
+                            style={{ color: 'black' }}
+                            onClick={() => handleShow('view', item.id, item.fecha, item.hora, item.numeroVentanilla,
+                              item.documentosAnexos, item.montoPago, item.atendida)}
+                          />
+                        </button>
+                      ) : (
+                        <button className="btn-alert" /*style={{ marginRight: '5px' }}*/>
+                          <FeatherIcon
+                            icon='alert-circle'
+                            style={{ color: 'black' }}
+                            onClick={() => handleShow('edit', item.id, item.fecha, item.hora, item.numeroVentanilla,
+                              item.documentosAnexos, item.montoPago, item.atendida)}
+                          />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -155,77 +346,46 @@ const CitaScreen = () => {
         <Modal.Body>
           <Form /*noValidate validated={validated}*/ onSubmit={handleSubmit}>
             <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="validationCustom01">
-                <Form.Label style={{ color: '#2A4172' }}><b>Matrícula</b></Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  value={nombre} onChange={(e) => setNombre(e.target.value)}
-                //placeholder="First name"
-                />
-                {/*<Form.Control.Feedback>Completado</Form.Control.Feedback>*/}
+              <Form.Group as={Col} md="4" controlId="validationCustom01">
+                <Form.Label style={{ color: '#2A4172' }}><b>No. Ventanilla</b></Form.Label>
+                <Form.Control disabled
+                  value={numeroVentanilla} onChange={(e) => setNumeroVentanilla(e.target.value)} />
               </Form.Group>
-              <Form.Group as={Col} md="6" controlId="validationCustom02">
-                <Form.Label style={{ color: '#2A4172' }}><b>Apellido Paterno</b></Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  value={apellidoP} onChange={(e) => setApellidoP(e.target.value)}
-                //placeholder="Last name"
-                />
-
+              <Form.Group as={Col} md="5" controlId="validationCustom02">
+                <Form.Label style={{ color: '#2A4172' }}><b>Fecha</b></Form.Label>
+                <Form.Control disabled
+                  value={fecha} onChange={(e) => setFecha(e.target.value)} />
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom03">
+                <Form.Label style={{ color: '#2A4172' }}><b>Hora</b></Form.Label>
+                <Form.Control disabled
+                  value={hora} onChange={(e) => setHora(e.target.value)} />
               </Form.Group>
             </Row>
+
             <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="validationCustom03">
-                <Form.Label style={{ color: '#2A4172' }}><b>Apellido Materno</b></Form.Label>
-                <Form.Control type="text" required
-                  value={correo} onChange={(e) => setCorreo(e.target.value)} />
-              </Form.Group>
               <Form.Group as={Col} md="6" controlId="validationCustom04">
-                <Form.Label style={{ color: '#2A4172' }}><b>Correo</b></Form.Label>
-                <Form.Control type="text" required
-                  value={correo} onChange={(e) => setCorreo(e.target.value)} />
+                <Form.Label style={{ color: '#2A4172' }}><b>Documentos requeridos</b></Form.Label>
+                <Form.Control as="textarea" rows={3} type="text" disabled
+                  value={documentosAnexos} onChange={(e) => setDocumentosAnexos(e.target.value)} />
+              </Form.Group>
+              <Form.Group as={Col} md="6" controlId="validationCustom05">
+                <Form.Label style={{ color: '#2A4172' }}><b>Monto</b></Form.Label>
+                <Form.Control disabled
+                  value={montoPago} onChange={(e) => setMontoPago(e.target.value)} />
               </Form.Group>
             </Row>
-
-            <Row className="mb-4">
-              <Form.Group as={Col} md="7" controlId="validationCustom09">
-                <Form.Label style={{ color: '#2A4172' }}><b>Contraseña</b></Form.Label>
-                <Form.Control type={showPassword ? "text" : "password"} required
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group as={Col} md="1" controlId="validationCustom10">
-                <Form.Label style={{ color: 'white' }}>P</Form.Label>
-                <Button
-                  className="btn"
-                  style={{
-                    backgroundColor: "#375689",
-                    borderLeft: "none",
-                    width: "fit-content", /* Ajusta el ancho del botón al contenido */
-                    padding: "0.25rem", /* Ajusta el padding del botón */
-                  }}
-                  onClick={togglePassword}
-                >
-                  <FeatherIcon
-                    style={{
-                      stroke: 'white',
-                      fontSize: '1.2em', /* Ajusta el tamaño del ícono */
-                    }}
-                    icon={showPassword ? 'eye-off' : 'eye'}
-                  />
+            {/* Renderizar los botones solo si el campo "atendida" es false */}
+            {!atendida && (
+              <>
+                <Button className='me-2' variant='outline-danger' onClick={handleClose}>
+                  <FeatherIcon icon='x' />&nbsp;Cerrar
                 </Button>
-              </Form.Group>
-            </Row>
-
-            <Button className='me-2' variant='outline-danger' onClick={handleClose}>
-              <FeatherIcon icon='x' />&nbsp;Cerrar
-            </Button>
-
-            <Button variant="outline-success" type='button' /*onClick={() => validar()}*/>
-              <FeatherIcon icon='check' />&nbsp;Guardar
-            </Button>
+                <Button variant="outline-success" type='button' onClick={() => changeStatus(id, atendida)}>
+                  <FeatherIcon icon='check' />&nbsp;Atender
+                </Button>
+              </>
+            )}
           </Form>
         </Modal.Body>
       </Modal>

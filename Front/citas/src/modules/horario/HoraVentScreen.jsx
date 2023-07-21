@@ -1,38 +1,40 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, Modal, Card, Col, Row, Badge, Button, Form, InputGroup } from 'react-bootstrap'
 import DataTable, { createTheme } from 'react-data-table-component'
 import '../../shared/plugins/Screens.css'
+
+import 'react-datepicker/dist/react-datepicker.css';
 import FeatherIcon from 'feather-icons-react/build/FeatherIcon'
 import Swal from 'sweetalert2';
 
-const ServiceScreen = () => {
-
+const HoraVentScreen = () => {
     const navigate = useNavigate();
-    const urlService = `http://localhost:8080/api/servicios/`
-    const [admin, setAdmin] = useState([]);
+    const urlHorario = `http://localhost:8080/api/horarios/`
 
-    /*Cargar  */
-    const [servicio, setServicio] = useState([]);
-    const [id, setIdService] = useState('');
-    const [nomserv, setNomserv] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [documentos, setDocumentos] = useState('');
-    const [costo, setCosto] = useState('');
+    /*Cargar Ventanilla */
+    const [horario, setHorario] = useState([]);
+    const [venta, setVentanilla] = useState([]);
+
+    const [id, setId] = useState('');
+    const [diaSemana, setDia] = useState('');
+    const [horaInicio, setInicio] = useState('');
+    const [horaFin, setFin] = useState('');
+    //const [cantidadRepeticiones, setRepeticion] = useState('');
     const [status, setStatus] = useState('');
 
-    const [adminId, setAdminId] = useState(1);
+    const [ventanillaId, setVentaId] = useState(2);
 
     useEffect(() => {
-        cargarServicios();
-        cargarAdmin();
+        cargarHorarios();
+        cargarVentanilla();
     }, []);
 
-    const cargarServicios = async () => {
+    const cargarHorarios = async () => {
         try {
-            const respuesta = await axios.get(urlService);
-            setServicio(respuesta.data.data);
+            const respuesta = await axios.get(urlHorario);
+            setHorario(respuesta.data.data);
             console.log(respuesta.data.data)
             //console.clear();
         } catch (error) {
@@ -40,10 +42,10 @@ const ServiceScreen = () => {
         }
     };
 
-    const cargarAdmin = async () => {
+    const cargarVentanilla = async () => {
         try {
-            const respuesta = await axios.get(`http://localhost:8080/api/administrador/`);
-            setAdmin(respuesta.data.data);
+            const respuesta = await axios.get(`http://localhost:8080/api/ventanillas/`);
+            setVentanilla(respuesta.data.data);
             //console.log(respuesta.data)
             //console.clear();
         } catch (error) {
@@ -51,6 +53,32 @@ const ServiceScreen = () => {
             // Otro manejo de errores
         }
     };
+
+    /*Horarios */
+
+    const diasSemanaOptions = [
+        { value: 'Lunes', label: 'Lunes' },
+        { value: 'Martes', label: 'Martes' },
+        { value: 'Miércoles', label: 'Miércoles' },
+        { value: 'Jueves', label: 'Jueves' },
+        { value: 'Viernes', label: 'Viernes' },
+    ];
+
+    const generarHorarios = () => {
+        const horarios = [];
+        const horaInicial = 8;
+        const horaFinal = 15;
+        for (let hora = horaInicial; hora <= horaFinal; hora++) {
+            for (let minutos = 0; minutos < 60; minutos += 30) {
+                const horaFormateada = `${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+                horarios.push(horaFormateada);
+            }
+        }
+        return horarios;
+    };
+
+    // Llamamos a la función generarHorarios para obtener las opciones del select
+    const opcionesHorario = generarHorarios();
 
     /*Intento de modal */
 
@@ -60,26 +88,26 @@ const ServiceScreen = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
 
-    const handleShow = (mode, id, nomserv, descripcion, documentos, costo, status) => {
-        setIdService('');
-        setNomserv('');
-        setDescripcion('');
-        setDocumentos('');
-        setCosto('');
+
+    const handleShow = (mode, id, diaSemana, horaInicio, horaFin, status) => {
+        setId('');
+        setDia('');
+        setInicio('');
+        setFin('');
+        //setRepeticion('');
         setStatus(true);
         setMode(mode);
-
         if (mode === "add") {
-            setTitle('Registrar solicitante');
+            setTitle('Registrar horario');
         } else if (mode === "edit") {
-            setTitle('Editar solicitante');
-            setIdService(id);
-            setNomserv(nomserv);
-            setDescripcion(descripcion);
-            setDocumentos(documentos);
-            setCosto(costo);
+            setTitle('Editar horario');
+            setId(id);
+            setDia(diaSemana);
+            setInicio(horaInicio);
+            setFin(horaFin);
+            //setRepeticion(cantidadRepeticiones);
             setStatus(status);
-            setAdminId(adminId);
+            setVentaId(ventanillaId);
             setMode(mode);
         }
         /*window.setTimeout(function(){
@@ -92,7 +120,7 @@ const ServiceScreen = () => {
         var parametros;
         var metodo;
         var modo = mode; // Agregar variable local para guardar mode
-        if (![nomserv, descripcion, documentos, costo].every(field => field !== '')) {
+        if (![diaSemana, horaInicio, horaFin].every(field => field !== '')) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Llena todos los campos',
@@ -102,14 +130,21 @@ const ServiceScreen = () => {
         } else {
             if (modo === "add") {
                 parametros = {
-                    nomserv: nomserv.trim(), descripcion: descripcion.trim(), documentos: documentos.trim(),
-                    costo: parseFloat(costo), status: status, admin: { id: adminId }
+                    diaSemana: diaSemana.trim(),
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
+                    status: status,
+                    ventanilla: { id: ventanillaId }
                 };
                 metodo = 'POST';
             } else {
                 parametros = {
-                    id: id, nomserv: nomserv.trim(), descripcion: descripcion.trim(), documentos: documentos.trim(),
-                    costo: parseFloat(costo), status: status, admin: { id: adminId }
+                    id: id,
+                    diaSemana: diaSemana.trim(),
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
+                    status: status,
+                    ventanilla: { id: ventanillaId }
                 };
                 metodo = 'PUT';
             }
@@ -119,19 +154,19 @@ const ServiceScreen = () => {
 
     const enviarSolicitud = async (metodo, parametros) => {
         if (metodo === 'PUT') {
-            await axios({ method: metodo, url: `http://localhost:8080/api/servicios/${id}`, data: parametros })
+            await axios({ method: metodo, url: `http://localhost:8080/api/horarios/${id}`, data: parametros })
                 .then(function (respuesta) {
                     var hasError = respuesta.data.status;
                     ///var msj = respuesta.data.message;
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
-                        title: 'Servicio actualizado correctamente',
+                        title: 'Horario actualizado correctamente',
                         showConfirmButton: false,
-                        timer: 2000
+                        timer: 1500
                     });
                     if (hasError === false) {
-                        cargarServicios();
+                        cargarHorarios();
                         handleClose();
                     }
                 })
@@ -141,7 +176,7 @@ const ServiceScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 2000
+                        timer: 1500
                     });
                     /*handleClose();
                     console.log(error);
@@ -149,12 +184,12 @@ const ServiceScreen = () => {
                     */
                 })
                 .finally(function () {
-                    cargarServicios();
+                    cargarHorarios();
                     handleClose();
                 });
 
         } else {
-            await axios({ method: metodo, url: urlService, data: parametros })
+            await axios({ method: metodo, url: urlHorario, data: parametros })
                 .then(function (respuesta) {
 
                     var hasError = respuesta.data.status;
@@ -162,20 +197,12 @@ const ServiceScreen = () => {
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
-                        title: msj,
+                        title: 'Horario registrado corrrectamente',
                         showConfirmButton: false,
-                        timer: 2000
+                        timer: 1500
                     });
                     if (hasError === false) {
-                        Swal.fire({
-                            icon: 'error',
-                            iconColor: '#264B99',
-                            title: 'Intenta de nuevo',
-                            text: msj,
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                        cargarServicios();
+                        cargarHorarios();
                         handleClose();
                     }
                 })
@@ -185,22 +212,21 @@ const ServiceScreen = () => {
                         iconColor: '#264B99',
                         title: 'Error en la petición',
                         showConfirmButton: false,
-                        timer: 2000
+                        timer: 1500
                     });
-                    /*handleClose();*/
-                    console.log(error);
+                    /*handleClose();
+                    console.log(error);*/
                 })
                 .finally(function () {
-                    cargarServicios();
+                    cargarHorarios();
                     handleClose();
                 });
         }
 
     }
 
-    const changeStatus = (id, nomserv, descripcion, documentos, costo, status) => {
+    const changeStatus = (id, diaSemana, horarioInicio, horarioFin, status) => {
         const nuevoStatus = !status; // Cambiar el estado actual
-
         Swal.fire({
             title: '¿Deseas cambiar el estado?',
             icon: 'warning',
@@ -213,14 +239,13 @@ const ServiceScreen = () => {
             if (result.isConfirmed) {
                 const data = {
                     id: id,
-                    nomserv: nomserv,
-                    descripcion: descripcion,
-                    documentos: documentos,
-                    costo: costo,
+                    diaSemana,
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
                     status: nuevoStatus
                 };
 
-                axios.patch(`http://localhost:8080/api/servicios/`, data)
+                axios.patch(`http://localhost:8080/api/horarios/${id}`, data)
                     .then(function (respuesta) {
                         var hasError = respuesta.data.status;
                         var msj = respuesta.data.message;
@@ -228,9 +253,9 @@ const ServiceScreen = () => {
                         let successMessage;
 
                         if (nuevoStatus) {
-                            successMessage = 'Solicitante dado de alta correctamente';
+                            successMessage = 'Horario dado de alta correctamente';
                         } else {
-                            successMessage = 'Solicitante dado de baja correctamente';
+                            successMessage = 'Horario dado de baja correctamente';
                         }
 
                         Swal.fire({
@@ -242,7 +267,7 @@ const ServiceScreen = () => {
                         });
 
                         if (hasError === false) {
-                            cargarServicios();
+                            cargarHorarios();
                             handleClose();
                         }
                     })
@@ -256,7 +281,7 @@ const ServiceScreen = () => {
                         });
                     })
                     .finally(function () {
-                        cargarServicios();
+                        cargarHorarios();
                         handleClose();
                     });
             }
@@ -265,11 +290,11 @@ const ServiceScreen = () => {
 
     ///BUSCAR 
     const [searchTerm, setSearchTerm] = useState("");
-    const filteredData = servicio.filter(item =>
-        item.nomserv.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.documentos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.costo.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredData = horario.filter(item =>
+        item.diaSemana.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.horarioInicio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.horarioFin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.cantidadRepeticiones.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     /// VALIDAR CON DEFAULT
@@ -292,7 +317,6 @@ const ServiceScreen = () => {
         setShowPassword(!showPassword);
     };
 
-
     return (
         <>
             <div className="container">
@@ -301,14 +325,13 @@ const ServiceScreen = () => {
                         <table className="table rounded-border">
                             <thead style={{ textAlign: 'center' }}>
                                 <tr>
-                                    <th colSpan="5" style={{ fontSize: '24px', fontWeight: 'bold' }}>SERVICIOS</th>
+                                    <th colSpan="5" style={{ fontSize: '24px', fontWeight: 'bold' }}>HORARIOS</th>
                                 </tr>
                                 <tr>
                                     {/*<th>ID</th>*/}
-                                    <th >Nombre del servicio</th>
-                                    <th>Descripción del servicio</th>
-                                    <th>Documentos requerido</th>
-                                    <th>Costo</th>
+                                    <th>Día de la semana </th>
+                                    <th>Hora de Inicio</th>
+                                    <th>Hora de Fin</th>
                                     <th>Estado</th>
                                     <th></th>
                                 </tr>
@@ -321,10 +344,9 @@ const ServiceScreen = () => {
                                 ) : (filteredData && filteredData.map((item) => (
                                     <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                                         {/*<td className="rounded-border">{item.id}</td>*/}
-                                        <td className="rounded-border">{item.nomserv}</td>
-                                        <td className="rounded-border" >{item.descripcion}</td>
-                                        <td className="rounded-border">{item.documentos}</td>
-                                        <td className="rounded-border">{item.costo}</td>
+                                        <td className="rounded-border">{item.diaSemana}</td>
+                                        <td className="rounded-border">{item.horaInicio}</td>
+                                        <td className="rounded-border">{item.horaFin}</td>
                                         <td className="rounded-border">
                                             {item.status ? (
                                                 <Badge bg='success'>Alta</Badge>
@@ -336,20 +358,8 @@ const ServiceScreen = () => {
                                                 <FeatherIcon
                                                     icon='edit'
                                                     style={{ color: 'black' }}
-                                                    onClick={() => {
-                                                        if (item.status) {
-                                                            handleShow('edit', item.id, item.nomserv, item.descripcion, item.documentos, item.costo, item.status);
-                                                        } else {
-                                                            Swal.fire({
-                                                                icon: 'warning',
-                                                                title: 'Oops...',
-                                                                text: 'No se puede editar un elemento dado de baja',
-                                                                showConfirmButton: false,
-                                                                timer: 1500
-                                                            })
-                                                        }
-                                                    }}
-
+                                                    onClick={() => handleShow('edit', item.id, item.diaSemana, item.horaInicio, item.horaFin,
+                                                        item.status)}
                                                 />
                                             </button>
                                             {item.status ? (
@@ -357,8 +367,8 @@ const ServiceScreen = () => {
                                                     <FeatherIcon
                                                         icon='trash-2'
                                                         style={{ color: 'black' }}
-                                                        onClick={() => changeStatus(item.id, item.nomserv,
-                                                            item.descripcion, item.documentos, item.costo, item.status)}
+                                                        onClick={() => changeStatus(item.id, item.diaSemana, item.horaInicio, item.horaFin,
+                                                            item.status)}
                                                     />
                                                 </button>
                                             ) : (
@@ -366,8 +376,8 @@ const ServiceScreen = () => {
                                                     <FeatherIcon
                                                         icon='pocket'
                                                         style={{ color: 'black' }}
-                                                        onClick={() => changeStatus(item.id, item.nomserv,
-                                                            item.descripcion, item.documentos, item.costo, item.status)}
+                                                        onClick={() => changeStatus(item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
+                                                            item.status)}
                                                     />
                                                 </button>
                                             )}
@@ -385,56 +395,60 @@ const ServiceScreen = () => {
                 </div>
             </div>
 
-
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton className='titleModal' style={{ backgroundColor: '#58BEC4', color: 'white' }}>
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                    <Form /*noValidate validated={validated}*/ onSubmit={handleSubmit}>
                         <Row className="mb-3">
-                            <Form.Group as={Col} md="12" controlId="validationCustom01">
-                                <Form.Label style={{ color: '#2A4172' }}><b>Nombre del servicio</b></Form.Label>
+                            <Form.Group as={Col} md="6" controlId="validationCustom01">
+                                <Form.Label style={{ color: '#2A4172' }}><b>Dia de la semana</b></Form.Label>
+                                <Form.Select
+                                    required
+                                    value={diaSemana}
+                                    onChange={(e) => setDia(e.target.value)}>
+                                    <option value="">Seleccione un día</option>
+                                    {diasSemanaOptions.map((dia) => (
+                                        <option key={dia.value} value={dia.value}>
+                                            {dia.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group as={Col} md="6" controlId="validationCustom02">
+                                <Form.Label style={{ color: '#2A4172' }}><b>Hora de Inicio</b></Form.Label>
                                 <Form.Control
                                     required
-                                    type="text"
-                                    value={nomserv} onChange={(e) => setNomserv(e.target.value)}
-                                //placeholder="First name"
-                                />
+                                    as="select"
+                                    value={horaInicio}
+                                    onChange={(e) => setInicio(e.target.value)}
+                                >
+                                    <option value="">Seleccione una hora</option>
+                                    {opcionesHorario.map((hora) => (
+                                        <option key={hora} value={hora}>
+                                            {hora}
+                                        </option>
+                                    ))}
+                                </Form.Control>
                             </Form.Group>
                         </Row>
-
                         <Row className="mb-3">
-                            <Form.Group md="12" controlId="validationCustom02">
-                                <Form.Label style={{ color: '#2A4172' }}><b>Descripción</b></Form.Label>
-                                <Form.Control
-                                    as="textarea" rows={3}
-                                    required
-                                    type="text"
-                                    value={descripcion} onChange={(e) => setDescripcion(e.target.value)}
-                                //placeholder="Last name"
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-4">
                             <Form.Group as={Col} md="6" controlId="validationCustom03">
-                                <Form.Label style={{ color: '#2A4172' }}><b>Documentos</b></Form.Label>
-                                <Form.Control as="textarea" rows={3} type="text" required
-                                    value={documentos} onChange={(e) => setDocumentos(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group as={Col} md="6" controlId="validationCustom04">
-                                <Form.Label style={{ color: '#2A4172' }}><b>Costo</b></Form.Label>
-                                <InputGroup className="mb-3">
-                                    <InputGroup.Text>$</InputGroup.Text>
-                                    <Form.Control type="text" required
-                                        value={costo} onChange={(e) => setCosto(e.target.value)} />
-                                    <InputGroup.Text>.00</InputGroup.Text>
-                                </InputGroup>
-                                {/*<InputGroup.Text>$</InputGroup.Text>
-                                <Form.Control type="text" required
-                                    value={costo} onChange={(e) => setCosto(e.target.value)} />
-                                <InputGroup.Text>.00</InputGroup.Text>*/}
+                                <Form.Label style={{ color: '#2A4172' }}><b>Horario de Fin</b></Form.Label>
+                                <Form.Control
+                                    required
+                                    as="select"
+                                    value={horaFin}
+                                    onChange={(e) => setFin(e.target.value)}
+                                >
+                                    <option value="">Seleccione una hora</option>
+                                    {opcionesHorario.map((hora) => (
+                                        <option key={hora} value={hora}>
+                                            {hora}
+                                        </option>
+                                    ))}
+                                </Form.Control>
                             </Form.Group>
                         </Row>
 
@@ -451,4 +465,4 @@ const ServiceScreen = () => {
         </>
     )
 }
-export default ServiceScreen
+export default HoraVentScreen
