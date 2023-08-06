@@ -28,7 +28,7 @@ public class SolicitanteService {
     private String mail;
     @Autowired
     private JavaMailSender javaMailSender;
-    
+
     @Autowired
     private SolicitanteRepository solicitanteRepository;
 
@@ -201,7 +201,7 @@ public class SolicitanteService {
         "</body>" +
         "</html>";
         messageHelper.setText(htmlContent, true);
-        
+
         // Adjuntar la imagen como recurso en línea
         FileSystemResource imageResource = new FileSystemResource(new File("src/main/resources/static/images/citat.jpeg"));
         messageHelper.addInline("logoImage", imageResource);
@@ -216,7 +216,7 @@ public class SolicitanteService {
         );
     }
 
-    //Actualizar un horario
+    //Actualizar
     @Transactional(rollbackFor =  {SQLException.class})
     public CustomResponse<Solicitante> update(Solicitante solicitante){
         if(!this.solicitanteRepository.existsById(solicitante.getId()))

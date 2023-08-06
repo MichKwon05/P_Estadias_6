@@ -6,20 +6,23 @@ import CitaScreen from '../citas/components/CitaScreen';
 import HoraVentScreen from '../horario/HoraVentScreen';
 import Animation from '../../shared/plugins/Animation';
 import Error from '../../shared/plugins/Error';
+import ProfileVentanilla from '../ventanilla/components/ProfileVentanilla';
 
 const VentanillaRoutez = () => {
     return (
-        <BrowserRouter>
+        <>
             <VentanillaNav />
             <Routes>
                 <Route path="/" element={<MainVentanilla />} />
-                <Route path="/homeVentanilla" element={<MainVentanilla />} />
+                <Route path="homeVentanilla" element={<MainVentanilla />} />
+                <Route path="/profileVentanilla" element={<ProfileVentanilla />} />
                 <Route path="/cita" element={<CitaScreen />} />
                 <Route path="/horario" element={<HoraVentScreen />} />
                 <Route path="/*" element={<Error />} />
             </Routes>
+            
             <Animation />
-        </BrowserRouter>
+        </>
     )
 }
 

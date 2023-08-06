@@ -46,15 +46,10 @@ public class Administrador {
     @Column(name = "changePassword", nullable = false, columnDefinition = "tinyint default 0")
     private Boolean changePassword;
 
-    ///Gestiona Ventanillas
     @OneToMany(mappedBy = "admin")
     private List<Ventanilla> ventanillas;
-    
-    ///Gestiona solicitantes
     @OneToMany(mappedBy = "admin")
     private List<Solicitante> solicitantes;
-    
-    ///Gestiona servicios
     @OneToMany(mappedBy = "admin")
     private List<Servicio> servicios;
 

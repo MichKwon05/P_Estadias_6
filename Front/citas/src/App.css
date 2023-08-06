@@ -271,12 +271,13 @@
 }
 
 .input_container {
-  width: 100%;
+  width: 400px;
   height: fit-content;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 5px;
+  padding-left: 50px;
 }
 
 .icon {

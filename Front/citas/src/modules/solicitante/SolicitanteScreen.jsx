@@ -29,18 +29,28 @@ const SolicitanteScreen = () => {
   const [status, setStatus] = useState('');
   const [changePassword, setChangePassword] = useState('');
 
-  const [adminId, setAdminId] = useState(1);
+  const [adminId, setAdminId] = useState(localStorage.getItem('sesionId'));
 
   useEffect(() => {
+    sesionActiva();
     cargarSolicitante();
     cargarAdmin();
   }, []);
+
+  const sesionActiva = () => {
+    const id = localStorage.getItem("sesionId")
+    const rol = localStorage.getItem("rol")
+
+    if (id === null || rol != 'admin') {
+        navigate('/login');
+    }
+}
 
   const cargarSolicitante = async () => {
     try {
       const respuesta = await axios.get(urlSoli);
       setSolicitante(respuesta.data.data);
-      console.log(respuesta.data.data)
+      //console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -51,7 +61,7 @@ const SolicitanteScreen = () => {
     try {
       const respuesta = await axios.get(`http://localhost:8080/api/administrador/`);
       setAdministrador(respuesta.data.data);
-      //console.log(respuesta.data)
+      //console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -122,7 +132,7 @@ const SolicitanteScreen = () => {
           nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
           matricula: matricula.trim(), carrera: carrera.trim(),
           correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
-          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId}
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId }
         };
         metodo = 'POST';
       } else {
@@ -130,7 +140,7 @@ const SolicitanteScreen = () => {
           id: id, nombre: nombre.trim(), apePaterno: apePaterno.trim(), apeMaterno: apeMaterno.trim(),
           matricula: matricula.trim(), carrera: carrera.trim(),
           correoElectronico: correoElectronico.trim(), telefono: telefono.trim(),
-          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId}
+          pass: pass.trim(), status: status, changePassword: changePassword, admin: { id: adminId }
         };
         metodo = 'PUT';
       }
@@ -349,7 +359,7 @@ const SolicitanteScreen = () => {
                 </tr>
               </thead>
               <tbody>
-                
+
                 {filteredData && filteredData.length === 0 ? (
                   <tr>
                     <td colSpan="9" style={{ textAlign: 'center' }}>No hay registros</td>
@@ -374,8 +384,20 @@ const SolicitanteScreen = () => {
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
-                          onClick={() => handleShow('edit', item.id, item.nombre, item.apePaterno, item.apeMaterno, item.matricula,
-                            item.carrera, item.correoElectronico, item.telefono, item.pass, item.status, item.changePassword)}
+                          onClick={() => {
+                            if (item.status) {
+                              handleShow('edit', item.id, item.nombre, item.apePaterno, item.apeMaterno, item.matricula,
+                                item.carrera, item.correoElectronico, item.telefono, item.pass, item.status, item.changePassword);
+                            } else {
+                              Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops...',
+                                text: 'No se puede editar un elemento dado de baja',
+                                showConfirmButton: false,
+                                timer: 2000
+                              })
+                            }
+                          }}
                         />
                       </button>
                       {item.status ? (

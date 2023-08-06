@@ -55,11 +55,11 @@ public class Solicitante {
     @Column(name = "changePassword", nullable = false, columnDefinition = "tinyint default 0")
     private Boolean changePassword;
 
+
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     @JsonBackReference
     private Administrador admin;
-
     @OneToMany(mappedBy = "solicitante", cascade = CascadeType.ALL)
     private List<Cita> citas;
 }

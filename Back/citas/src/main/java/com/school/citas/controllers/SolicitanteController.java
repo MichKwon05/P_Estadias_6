@@ -39,7 +39,7 @@ public class SolicitanteController {
                  HttpStatus.OK
          );
      }
- 
+
     @GetMapping("/getActive")
     public ResponseEntity<CustomResponse<List<Solicitante>>>
     getAllActive(){
@@ -48,7 +48,7 @@ public class SolicitanteController {
                 HttpStatus.OK
         );
     }
- 
+
      @GetMapping("/getAllInactive")
      public ResponseEntity<CustomResponse<List<Solicitante>>>
      getAllInactive(){
@@ -57,7 +57,7 @@ public class SolicitanteController {
                  HttpStatus.OK
          );
      }
- 
+
      @GetMapping("/{id}")
      public ResponseEntity<CustomResponse<Solicitante>> getOne(@PathVariable("id") Long id) {
          return new ResponseEntity<>(
@@ -65,7 +65,7 @@ public class SolicitanteController {
                  HttpStatus.OK
          );
      }
- 
+
      @PostMapping("/")
      public ResponseEntity<CustomResponse<Solicitante>> insert(@RequestBody @Valid SolicitanteDto solicitanteDto, @Valid BindingResult result) throws MessagingException{
          if (result.hasErrors()) {
@@ -79,7 +79,7 @@ public class SolicitanteController {
                  HttpStatus.CREATED
          );
      }
- 
+
      @PutMapping("/{id}")
      public ResponseEntity<CustomResponse<Solicitante>> update(
              @RequestBody SolicitanteDto solicitanteDto,
@@ -96,7 +96,7 @@ public class SolicitanteController {
                  HttpStatus.CREATED
          );
      }
- 
+
      @PatchMapping("/{id}")
      public ResponseEntity<CustomResponse<Boolean>> enableOrDisable(@RequestBody SolicitanteDto solicitanteDto){
          return new ResponseEntity<>(

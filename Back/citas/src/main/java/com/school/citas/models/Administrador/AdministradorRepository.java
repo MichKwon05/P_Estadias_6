@@ -34,7 +34,7 @@ public interface AdministradorRepository extends JpaRepository<Administrador, Lo
 
     //query para cambiar la contraseña
     @Modifying
-    @Query(value = "UPDATE administrador set pass =:newPass, changePassword=1  where  correoAdmin=:id",
+    @Query(value = "UPDATE administrador set pass =:newPass, change_password=1  WHERE  correo_admin=:id",
             nativeQuery = true
     )
     Integer changePassword(

@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SolicitanteRepository extends JpaRepository<Solicitante, Long> {
-
-    @Modifying
-    @Query(
+    @Modifying @Query(
             value = "UPDATE solicitante SET status = :status WHERE id = :id",
             nativeQuery = true
     )
@@ -21,14 +19,12 @@ public interface SolicitanteRepository extends JpaRepository<Solicitante, Long> 
             @Param("status") Boolean status,
             @Param("id") Long id
     );
-
     @Override
     Optional<Solicitante> findById(Long aLong);
     List<Solicitante> findAllByStatus(Boolean status);
     boolean existsByCorreoElectronico(String correoElectronico);
     Solicitante findByCorreoElectronico(String correoElectronico);
     Solicitante getById(Long id);
-
     //query para cambiar la contraseña
     @Modifying
     @Query(value = "UPDATE solicitante set pass =:newPass, changePassword=1  where  correoElectronico=:id",

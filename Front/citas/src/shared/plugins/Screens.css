@@ -13,8 +13,10 @@
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.566); /* Agrega un sombreado */
+  box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.566);
+  /* Agrega un sombreado */
 }
+
 
 .table-wrapper {
   overflow-y: auto;
@@ -24,8 +26,10 @@
 
 .table {
   width: 100%;
-  border-collapse: separate; /* Cambio: utiliza border-collapse: separate en lugar de border-collapse: collapse */
-  border-spacing: 5px; /* Agregado: especifica el espacio entre las celdas */
+  border-collapse: separate;
+  /* Cambio: utiliza border-collapse: separate en lugar de border-collapse: collapse */
+  border-spacing: 5px;
+  /* Agregado: especifica el espacio entre las celdas */
 }
 
 .table th {
@@ -52,19 +56,22 @@
 
 .bottom-section {
   display: flex;
-  justify-content: center; /* Alinea el contenido horizontalmente en el centro */
-  align-items: center; /* Alinea el contenido verticalmente en el centro */
+  justify-content: center;
+  /* Alinea el contenido horizontalmente en el centro */
+  align-items: center;
+  /* Alinea el contenido verticalmente en el centro */
   width: 45%;
   margin-top: 20px;
   border-radius: 10px;
   background-color: #2A4172;
   padding: 10px;
-  box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.566); /* Agrega un sombreado */
+  box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.566);
+  /* Agrega un sombreado */
 }
 
 
 input[type='text'] {
-  flex-grow: 1; 
+  flex-grow: 1;
   padding: 5px;
   border-radius: 5px;
   border: 1px solid gray;
@@ -79,7 +86,7 @@ input[type='text'] {
   border-radius: 5px;
 }
 
-.btn-inactive{
+.btn-inactive {
   background-color: #BAB9BC;
   color: black;
   border: none;
@@ -87,7 +94,7 @@ input[type='text'] {
   border-radius: 5px;
 }
 
-.btn-alert{
+.btn-alert {
   background-color: rgb(228, 181, 28);
   color: black;
   border: none;
@@ -100,7 +107,8 @@ input[type='text'] {
   text-align: center;
   vertical-align: middle;
   word-wrap: break-word;
-  max-width: 300px; /* Ajusta este valor según tus necesidades */
+  max-width: 300px;
+  /* Ajusta este valor según tus necesidades */
   height: auto;
   white-space: normal;
 }
@@ -113,5 +121,88 @@ input[type='text'] {
   /*margin: 5px;*/
 }
 
-/*btn del modal*/
 
+/* Perfil */
+.container-profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* Ajusta la altura del contenedor principal como desees */
+}
+
+.profile-container {
+  background-color: #5fccd2;
+  border-radius: 40px;
+  width: 80%;
+  /* Reducir el ancho del contenedor */
+  margin: 0 auto;
+  /* Centrar horizontalmente el contenedor */
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.566);
+  /* Ajuste de altura para hacer el contenedor un poco más largo */
+  justify-content: space-between;
+}
+
+.user-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.user-icon-badge-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-icon {
+  font-size: 80px;
+  color: #2A4172;
+}
+
+.form-control-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  width: 100%;
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.eye-icon {
+  margin-left: 10px;
+  color: #2A4172;
+  /* Ajustar el margen entre el input y el ícono del ojo */
+  cursor: pointer;
+}
+
+.badge-wrapper {
+  margin-top: 10px;
+  /* Ajustar el espacio entre el ícono y el badge */
+  font-size: 24px; /* Ajustar el tamaño del texto del badge */
+  padding: 10px 16px; 
+}
+
+.custom-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  /* Ajusta el tamaño del texto del botón */
+  color: white;
+  transition: color 0.2s ease-in-out;
+}

@@ -25,8 +25,18 @@ const AdminScreen = () => {
     const [changePassword, setChangePass] = useState('');
 
     useEffect(() => {
+        sesionActiva();
         cargarAdmin();
     }, []);
+
+    const sesionActiva = () => {
+        const id = localStorage.getItem("sesionId")
+        const rol = localStorage.getItem("rol")
+
+        if (id === null || rol != 'admin') {
+            navigate('/login');
+        }
+    }
 
     const cargarAdmin = async () => {
         try {
@@ -36,7 +46,6 @@ const AdminScreen = () => {
             //console.clear();
         } catch (error) {
             console.log('Error:', error.message);
-            // Otro manejo de errores
         }
     };
 
@@ -71,9 +80,6 @@ const AdminScreen = () => {
             setStatus(status);
             setChangePass(changePassword);
         }
-        /*window.setTimeout(function(){
-            document.getElementById(`nombre`).focus();
-        },500);*/
         setShow(true);
     }
 
@@ -133,10 +139,6 @@ const AdminScreen = () => {
                         showConfirmButton: false,
                         timer: 2000
                     });
-                    /*handleClose();
-                    console.log(error);
-                    Promesa cumple y sale
-                    */
                 })
                 .finally(function () {
                     cargarAdmin();
@@ -145,10 +147,8 @@ const AdminScreen = () => {
         } else {
             await axios({ method: metodo, url: url, data: parametros })
                 .then(function (respuesta) {
-
                     var hasError = respuesta.data.error;
                     var msj = respuesta.data.message;
-
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#58BEC4',
@@ -178,8 +178,6 @@ const AdminScreen = () => {
                         showConfirmButton: false,
                         timer: 2000
                     });
-                    /*handleClose();
-                    console.log(error);*/
                 })
                 .finally(function () {
                     cargarAdmin();
@@ -191,7 +189,6 @@ const AdminScreen = () => {
 
     const changeStatus = (id, nombreAdmin, apePaternoAdmin, apeMaternoAdmin, correoAdmin, pass, status, changePassword) => {
         const nuevoStatus = !status; // Cambiar el estado actual
-
         Swal.fire({
             title: '¿Deseas cambiar el estado?',
             icon: 'warning',
@@ -212,7 +209,6 @@ const AdminScreen = () => {
                     status: nuevoStatus, // Asignar el nuevo estado
                     changePassword: changePassword
                 };
-
                 axios.patch(`http://localhost:8080/api/administrador/${id}`, data)
                     .then(function (respuesta) {
                         var hasError = respuesta.data.status;
@@ -234,7 +230,6 @@ const AdminScreen = () => {
                             showConfirmButton: false,
                             timer: 2000
                         });
-
                         if (hasError === false) {
                             cargarAdmin();
                             handleClose();
@@ -320,17 +315,29 @@ const AdminScreen = () => {
                                             <td className="rounded-border">{item.correoAdmin}</td>
                                             <td className="rounded-border">{
                                                 item.status ? (
-                                                <Badge bg='success'>Alta</Badge>
+                                                    <Badge bg='success'>Alta</Badge>
                                                 ) : (
-                                                <Badge bg='danger'>Baja</Badge>)}
+                                                    <Badge bg='danger'>Baja</Badge>)}
                                             </td>
                                             <td style={{ background: '#2A4172', border: 'none' }}>
                                                 <button className="btn-b" style={{ marginRight: '5px' }}>
                                                     <FeatherIcon
                                                         icon='edit'
                                                         style={{ color: 'black' }}
-                                                        onClick={() => handleShow('edit', item.id, item.nombreAdmin, item.apePaternoAdmin,
-                                                            item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status, item.changePassword)}
+                                                        onClick={() => {
+                                                            if (item.status) {
+                                                                handleShow('edit', item.id, item.nombreAdmin, item.apePaternoAdmin,
+                                                                    item.apeMaternoAdmin, item.correoAdmin, item.pass, item.status, item.changePassword);
+                                                            } else {
+                                                                Swal.fire({
+                                                                    icon: 'warning',
+                                                                    title: 'Oops...',
+                                                                    text: 'No se puede editar un elemento dado de baja',
+                                                                    showConfirmButton: false,
+                                                                    timer: 2000
+                                                                })
+                                                            }
+                                                        }}
                                                     />
                                                 </button>
                                                 {item.status ? (

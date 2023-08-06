@@ -24,12 +24,22 @@ const HoraVentScreen = () => {
     //const [cantidadRepeticiones, setRepeticion] = useState('');
     const [status, setStatus] = useState('');
 
-    const [ventanillaId, setVentaId] = useState(2);
+    const [ventanillaId, setVentaId] = useState(localStorage.getItem('sesionId'));
 
     useEffect(() => {
+        sesionActiva();
         cargarHorarios();
         cargarVentanilla();
     }, []);
+
+    const sesionActiva = () => {
+        const id = localStorage.getItem("sesionId")
+        const rol = localStorage.getItem("rol")
+    
+        if (id === null || rol != 'ventanilla') {
+            navigate('/login');
+        }
+    }
 
     const cargarHorarios = async () => {
         try {

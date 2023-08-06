@@ -53,5 +53,4 @@ public class Servicio {
     @OneToMany(mappedBy = "servicio")
     private List<Cita> citas;
 
-
 }

@@ -85,7 +85,7 @@ const HorarioScreen = () => {
     } else if (mode === "edit") {
       setTitle('Editar horario');
       setId(id);
-      setDia(format(parseISO(diaSemana), 'EEEE')); 
+      setDia(format(parseISO(diaSemana), 'EEEE'));
       setInicio(parseISO(horarioInicio));
       setFin(parseISO(horarioFin));
       //setRepeticion(cantidadRepeticiones);
@@ -342,9 +342,23 @@ const HorarioScreen = () => {
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
-                          onClick={() => handleShow('edit', item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
-                            item.status)}
+                          onClick={() => {
+                            if (item.status) {
+                              handleShow(
+                                'edit', item.id, item.diaSemana, item.horarioInicio, item.horarioFin,
+                                item.status)
+                            } else {
+                              Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops...',
+                                text: 'No se puede editar un elemento dado de baja',
+                                showConfirmButton: false,
+                                timer: 2000
+                              })
+                            }
+                          }}
                         />
+
                       </button>
                       {item.status ? (
                         <button className="btn-b" /*style={{ marginRight: '5px' }}*/>

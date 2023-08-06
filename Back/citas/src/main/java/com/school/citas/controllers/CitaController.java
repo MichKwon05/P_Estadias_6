@@ -58,36 +58,19 @@ public class CitaController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<CustomResponse<Cita>> insert(
-            @RequestBody @Valid CitaDto citaDto,
-            @Valid BindingResult result
-    ) throws MessagingException{
+    public ResponseEntity<CustomResponse<Cita>> insert(@RequestBody @Valid CitaDto citaDto, @Valid BindingResult result)
+            throws MessagingException{
         if (result.hasErrors()){
-            return new ResponseEntity<>(
-                    null,
-                    HttpStatus.BAD_REQUEST
-            );
+            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(
-                this.citaService.insert(citaDto.getCita()),
-                HttpStatus.CREATED
-        );
+        return new ResponseEntity<>( this.citaService.insert(citaDto.getCita()),HttpStatus.CREATED);
     }
-
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<Cita>> update(
-            @RequestBody CitaDto citadto,
-            @Valid BindingResult result){
+    public ResponseEntity<CustomResponse<Cita>> update(@RequestBody CitaDto citadto,@Valid BindingResult result){
         if (result.hasErrors()){
-            return new ResponseEntity<>(
-                    null,
-                    HttpStatus.BAD_REQUEST
-            );
+            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(
-                this.citaService.update(citadto.getCita()),
-                HttpStatus.CREATED
-        );
+        return new ResponseEntity<>(this.citaService.update(citadto.getCita()),HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")

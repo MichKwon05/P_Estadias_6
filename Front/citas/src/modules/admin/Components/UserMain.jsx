@@ -1,19 +1,33 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';// Importa el hook useHistory para la navegación
 import { FaUserTie, FaUserGraduate, FaUserShield } from 'react-icons/fa';
 import '../../../shared/plugins/MainThree.css'
 
 const UserMain = () => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        sesionActiva();
+    }, []);
+
+    const sesionActiva = () => {
+        const id = localStorage.getItem("sesionId")
+        const rol = localStorage.getItem("rol")
+
+        if (id === null || rol != 'admin') {
+            navigate('/login');
+        }
+    }
+
     const handleVenta = () => {
-        navigate('/user/ventanilla');
+        navigate('ventanilla');
     };
     const handleSoli = () => {
-        navigate('/user/solicitante');
+        navigate('solicitante');
     };
 
     const handleAdmin = () => {
-        navigate('/user/admin');
+        navigate('admin');
     };
     return (
         <>

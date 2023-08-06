@@ -35,10 +35,8 @@ public class SolicitanteDto {
     private String pass;
     private Boolean status;
     private Boolean changePassword;
-
     private Administrador admin;
     private List<Cita> citas;
-
     public Solicitante getSolicitante(){
         return new Solicitante(
                 getId(),
@@ -56,6 +54,4 @@ public class SolicitanteDto {
                 getCitas()
         );
     }
-
-
 }

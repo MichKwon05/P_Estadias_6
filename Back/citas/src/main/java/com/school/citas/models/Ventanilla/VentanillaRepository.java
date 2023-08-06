@@ -31,7 +31,7 @@ public interface VentanillaRepository extends JpaRepository<Ventanilla, Long> {
 
     //query para cambiar la contraseña
     @Modifying
-    @Query(value = "UPDATE ventanilla set pass =:newPass, changePassword=1  where  correoElectronico=:id",
+    @Query(value = "UPDATE ventanilla set pass =:newPass, change_password=1  where  correo_electronico=:id",
             nativeQuery = true
     )
     Integer changePassword(

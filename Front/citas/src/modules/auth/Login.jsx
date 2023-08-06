@@ -8,6 +8,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from "axios";
 import Swal from 'sweetalert2';
+import Loading from "../../shared/plugins/Loading";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,13 +21,9 @@ const Login = () => {
   const baseUrl = `http://localhost:8080/api/`
   const navigate = useNavigate();
 
-  const [admin, setAdmin] = useState([]);
-  const [solicitante, setSolicitante] = useState([]);
-  const [ventanilla, setVentanilla] = useState([]);
-  const [userData, setUserData] = useState({});
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   let found = false;
 
@@ -50,74 +47,90 @@ const Login = () => {
   }
 
   const buscarPersona = async () => {
-    let found = false; // Agregamos la declaración de la variable found y la inicializamos en false.
+    setIsLoading(true);
+    let found = false;
   
-    if (validate()) {
-      let usuario = null;
-      let rol = '';
+    try {
+        let usuario = null;
+        let rol = '';
   
-      fetch(`${baseUrl}administrador/`).then((resp) => {
-        return resp.json();
-      }).then((resp) => {
+        const adminResp = await fetch(`${baseUrl}administrador/`);
+        const adminData = await adminResp.json();
+        console.log("Administradores:", adminData.data);
   
-        for (let index = 0; index < resp.obj.length; index++) {
-          const element = resp.obj[index];
-          if (element.correo === email && element.password === password) {
+        for (let index = 0; index < adminData.data.length; index++) {
+          const element = adminData.data[index];
+          if (element.correoAdmin === email && element.pass === password) {
             usuario = element;
-            rol = 'admin'
+            rol = 'admin';
             found = true;
           }
         }
   
-        fetch(`${baseUrl}ventanillas/`).then((resp) => {
-          return resp.json();
-        }).then((resp) => {
-          for (let index = 0; index < resp.obj.length; index++) {
-            const element = resp.obj[index];
-            if (element.correo === email && element.password === password) {
+        if (!found) {
+          const ventanillasResp = await fetch(`${baseUrl}ventanillas/`);
+          const ventanillasData = await ventanillasResp.json();
+          console.log("Ventanillas:", ventanillasData.data);
+  
+          for (let index = 0; index < ventanillasData.data.length; index++) {
+            const element = ventanillasData.data[index];
+            if (element.correoElectronico === email && element.pass === password) {
               usuario = element;
-              rol = 'ventanilla'
+              rol = 'ventanilla';
               found = true;
             }
           }
+        }
   
-          if (usuario === null) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Usuario no encontrado',
-              showConfirmButton: false,
-              timer: 1500
-            });
-          } else {
-            localStorage.setItem("rol", rol)
-            localStorage.setItem("correo", usuario.correo)
-            localStorage.setItem("sesionId", usuario.id)
-            let dato = localStorage.getItem("sesionUser")
+        if (!found) {
+          const solicitantesResp = await fetch(`${baseUrl}solicitantes/`);
+          const solicitantesData = await solicitantesResp.json();
+          console.log("Solicitantes:", solicitantesData.data);
   
-            switch (rol) {
-              case 'admin':
-                navigate('/adminDashboard')
-                break;
-              case 'ventanilla':
-                navigate('/ventanillaDashBoard')
-                break;
-              default:
-                break;
+          for (let index = 0; index < solicitantesData.data.length; index++) {
+            const element = solicitantesData.data[index];
+            if (element.correoElectronico === email && element.pass === password) {
+              found = true;
             }
           }
-        })
-      })
-    } else {
+        }
+  
+        if (!found) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Usuario no encontrado',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } else {
+          localStorage.setItem("rol", rol);
+          localStorage.setItem("sesionId", usuario.id);
+          let dato = localStorage.getItem("sesionUser");
+  
+          switch (rol) {
+            case 'admin':
+              navigate('/adminDashboard');
+              break;
+            case 'ventanilla':
+              navigate('/ventanillaDashBoard');
+              break;
+            default:
+              break;
+          }
+        }
+    } catch (error) {
+      console.error('Error en la solicitud de datos:', error);
       Swal.fire({
-        icon: 'warning',
-        title: 'Llena todos los campos',
+        icon: 'error',
+        title: 'Ocurrió un error al buscar el usuario',
+        text: 'Por favor, intenta nuevamente más tarde.',
         showConfirmButton: false,
-        timer: 1500
+        timer: 2000
       });
+    } finally {
+      setIsLoading(false); // Indicar que finalizó la carga
     }
   }
-  
-
 
   const validate = () => {
     let result = true;
@@ -129,6 +142,7 @@ const Login = () => {
     }
     return result;
   }
+
   return (
     <Container fluid style={{
       backgroundImage: `url(${fondo})`,
@@ -147,53 +161,53 @@ const Login = () => {
           </div>
         </Col>
         {/* ... */}
-        <div className="input_container">
-          <FeatherIcon
-            icon="mail"
-            className="icon"
-            fill="none"
-            viewBox="0 0 24 24"
-            height="24"
-            width="24"
-          />
-          <input
-            placeholder="Correo Institucional"
-            title="Input title"
-            name="input-name"
-            type="text"
-            className="input_field"
-            id="email_field"
-            style={{ paddingLeft: '40px' }}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="input_container">
-          <FeatherIcon
-            icon={showPassword ? 'eye-off' : 'eye'}
-            className="icon"
-            onClick={handlePasswordVisibility}
-          />
-          <input
-            placeholder="******"
-            title="Input title"
-            name="input-name"
-            type={showPassword ? 'text' : 'password'}
-            style={{ paddingLeft: '40px' }}
-            className="input_field"
-            id="password_field"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-
-          />
-        </div>
+        <Form.Group className="mb-1" controlId="email_field">
+          {/*<Form.Label>Correo Institucional</Form.Label>*/}
+          <div className="input_container">
+            <FeatherIcon
+              style={{ marginRight: '80px' }}
+              icon="mail"
+              className="icon"
+              fill="none"
+              height="24"
+              width="24"
+            />
+            <Form.Control
+              type="text"
+              placeholder="Correo Institucional"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input_field"
+            />
+          </div>
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="password_field">
+          {/*<Form.Label>Contraseña</Form.Label>*/}
+          <div className="input_container">
+            <FeatherIcon
+              icon={showPassword ? 'eye-off' : 'eye'}
+              className="icon"
+              onClick={handlePasswordVisibility}
+            />
+            <Form.Control
+              type={showPassword ? 'text' : 'password'}
+              placeholder="******"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input_field"
+              
+            />
+          </div>
+        </Form.Group>
 
         {/* Sign In Button */}
         <button title="Sign In" type="submit" className="sign-in_btn"
-          onClick={buscarPersona}>
+          onClick={buscarPersona}
+          disabled={!email || !password}
+          >
           <span>Iniciar Sesión</span>
         </button>
-
-        <a href="#" className="mb-4" style={{ color: '#264B99' }}>¿Olvidaste tu contraseña?</a>
+        {/*<a href="/changePassword" className="mb-4" style={{ color: '#264B99' }}>¿Olvidaste tu contraseña?</a>*/}
       </Form>
     </Container>
   )

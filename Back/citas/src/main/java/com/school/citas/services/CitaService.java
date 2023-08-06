@@ -100,7 +100,7 @@ public class CitaService {
          messageHelper.setTo(cita.getSolicitante().getCorreoElectronico());
          messageHelper.setFrom(cita.getVentanilla().getCorreoElectronico());
          messageHelper.setSubject("Agendación de la Cita");
- 
+
          // Configurar el contenido del mensaje con diseño personalizado
         String htmlContent = "<html>" +
                  "<head>" +
@@ -196,9 +196,9 @@ public class CitaService {
                  "</div>" +
                  "</div>" +
                  "</body>" +
-                 "</html>";         
+                 "</html>";
          messageHelper.setText(htmlContent, true);
-         
+
          // Adjuntar la imagen como recurso en línea
         FileSystemResource imageResource = new FileSystemResource(new File("src/main/resources/static/images/citat.jpeg"));
         messageHelper.addInline("logoImage", imageResource);

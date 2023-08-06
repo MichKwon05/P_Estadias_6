@@ -1,19 +1,34 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';// Importa el hook useHistory para la navegación
-import { FaUser, FaFileSignature } from 'react-icons/fa';
-import '../../shared/plugins/Main.css'
+import { FaUser, FaFileSignature, FaRestroom, FaRegAddressBook } from 'react-icons/fa';
+import '../../shared/plugins/MainThree.css'
 
-import { CloudWaveEffect } from "react-background-animation";
 
 const Main = () => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    sesionActiva();
+  }, []);
+
+  const sesionActiva = () => {
+    const id = localStorage.getItem("sesionId")
+    const rol = localStorage.getItem("rol")
+
+    if (id === null || rol != 'admin') {
+      navigate('/login');
+    }
+  }
+
   const handleUserClick = () => {
-    navigate('/user');
+    navigate('user');
   };
 
   const handleServiceClick = () => {
-    navigate('/service');
+    navigate('service');
+  };
+  const handleProfile = () => {
+    navigate('profileAdmin');
   };
 
   return (
@@ -33,11 +48,24 @@ const Main = () => {
         </div>
         <div className="circle-wrapper">
           <div className="circle">
+            <div className="circle-icon-profile mb-4">
+              <div className="inner-circle-profile">
+                <FaRegAddressBook className="circle-icon" />
+              </div>
+            </div>
+            <button className="btn" onClick={handleProfile}>
+              Perfil
+            </button>
+          </div>
+        </div>
+        <div className="circle-wrapper">
+          <div className="circle">
             <div className="circle-icon-wrapper mb-4">
               <div className="inner-circle">
                 <FaFileSignature className="circle-icon" />
               </div>
             </div>
+
             <button className="btn" onClick={handleServiceClick}>
               Servicio
             </button>

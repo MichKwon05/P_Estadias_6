@@ -22,12 +22,22 @@ const ServiceScreen = () => {
     const [costo, setCosto] = useState('');
     const [status, setStatus] = useState('');
 
-    const [adminId, setAdminId] = useState(1);
+    const [adminId, setAdminId] = useState(localStorage.getItem('sesionId'));
 
     useEffect(() => {
+        sesionActiva();
         cargarServicios();
         cargarAdmin();
     }, []);
+
+    const sesionActiva = () => {
+        const id = localStorage.getItem("sesionId")
+        const rol = localStorage.getItem("rol")
+
+        if (id === null || rol != 'admin') {
+            navigate('/login');
+        }
+    }
 
     const cargarServicios = async () => {
         try {
@@ -228,9 +238,9 @@ const ServiceScreen = () => {
                         let successMessage;
 
                         if (nuevoStatus) {
-                            successMessage = 'Solicitante dado de alta correctamente';
+                            successMessage = 'Servicio dado de alta correctamente';
                         } else {
-                            successMessage = 'Solicitante dado de baja correctamente';
+                            successMessage = 'Servicio dado de baja correctamente';
                         }
 
                         Swal.fire({
@@ -266,10 +276,9 @@ const ServiceScreen = () => {
     ///BUSCAR 
     const [searchTerm, setSearchTerm] = useState("");
     const filteredData = servicio.filter(item =>
-        item.nomserv.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.documentos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.costo.toLowerCase().includes(searchTerm.toLowerCase())
+        item.nomserv.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+        item.descripcion.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+        item.documentos.toLowerCase().includes(searchTerm?.toLowerCase()) 
     );
 
     /// VALIDAR CON DEFAULT
@@ -345,11 +354,10 @@ const ServiceScreen = () => {
                                                                 title: 'Oops...',
                                                                 text: 'No se puede editar un elemento dado de baja',
                                                                 showConfirmButton: false,
-                                                                timer: 1500
+                                                                timer: 2000
                                                             })
                                                         }
                                                     }}
-
                                                 />
                                             </button>
                                             {item.status ? (

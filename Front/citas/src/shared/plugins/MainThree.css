@@ -5,14 +5,16 @@
     align-items: center;
     height: 100vh;
     gap: 20px;
+    overflow: hidden; /* Evitar scroll horizontal */
 }
 
 .circle-wrapper {
-    margin: 50px;
-    /* Ajusta el margen verticalmente */
     display: flex;
-    /* Agrega display flex para alinear los círculos en una columna */
-}
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 20%; /* Puedes ajustar este valor según el diseño deseado */
+  }
 
 .circle {
     display: flex;
@@ -55,6 +57,37 @@
     color: white;
 }
 
+/*Perfil*/
+.circle-icon-profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25vw;
+    /* Utiliza 25% del ancho de la ventana */
+    height: 25vw;
+    /* Utiliza la misma altura que el ancho */
+    max-width: 350px;
+    /* Establece un máximo de 350px */
+    max-height: 350px;
+    /* Establece un máximo de 350px */
+    border-radius: 50%;
+    background-color: #264B99;
+    /* Cambia el color de fondo a verde */
+    box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.381);
+}
+
+.inner-circle-profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    background-color:#2A4172 ;
+}
+
+
+/**/
 .btn {
     background-color: #264B99;
     padding: 14px 50px;

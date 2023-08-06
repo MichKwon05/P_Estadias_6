@@ -24,14 +24,23 @@ const CitaScreen = () => {
   const [montoPago, setMontoPago] = useState('');
   const [atendida, setAtendida] = useState('');
 
-  const [ventanillaId, setVentaId] = useState(2);
-
-  const [searchTerm, setSearchTerm] = useState('');
+  const [ventanillaId, setVentaId] = useState(localStorage.getItem('sesionId'));
 
   useEffect(() => {
+    sesionActiva();
     cargarCitas();
     cargarVentanilla();
   }, []);
+
+const sesionActiva = () => {
+    const id = localStorage.getItem("sesionId")
+    const rol = localStorage.getItem("rol")
+
+    if (id === null || rol != 'ventanilla') {
+        navigate('/login');
+    }
+}
+
   const cargarCitas = async () => {
     try {
       const respuesta = await axios.get(urlCita);
@@ -110,72 +119,6 @@ const CitaScreen = () => {
 
   }
 
-  /*const enviarSolicitud = async (metodo, parametros) => {
-    if (metodo === 'PATCH') {
-      const nuevoStatus = !atendida; // Cambiar el estado actual
-      Swal.fire({
-        title: '¿Deseas cambiar el estado?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#58BEC4',
-        cancelButtonColor: '#264B99',
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const data = {
-            id: id,
-            fecha: fecha,
-            hora: hora,
-            numeroVentanilla: numeroVentanilla,
-            documentosAnexos: documentosAnexos,
-            montoPago: montoPago,
-            atendida: nuevoStatus
-          };
-
-          axios.patch(`http://localhost:8080/api/citas/${id}`, data)
-            .then(function (respuesta) {
-              var hasError = respuesta.data.status;
-              var msj = respuesta.data.message;
-
-              let successMessage;
-
-              if (nuevoStatus) {
-                successMessage = 'Cita atendida correctamente';
-              } else {
-                successMessage = 'Cita Error';
-              }
-
-              Swal.fire({
-                icon: 'success',
-                iconColor: '#58BEC4',
-                title: successMessage,
-                showConfirmButton: false,
-                timer: 2000
-              });
-
-              if (hasError === false) {
-                cargarCitas();
-                handleClose();
-              }
-            })
-            .catch(function (error) {
-              Swal.fire({
-                icon: 'error',
-                iconColor: '#264B99',
-                title: 'Error en la petición',
-                showConfirmButton: false,
-                timer: 2000
-              });
-            })
-            .finally(function () {
-              cargarCitas();
-              handleClose();
-            });
-        }
-      });
-    }
-  }*/
 
   const changeStatus = (id, atendida) => {
     const nuevoStatus = !atendida; // Cambiar el estado actual
@@ -193,20 +136,16 @@ const CitaScreen = () => {
           id: id,
           atendida: nuevoStatus
         };
-
         axios.patch(`http://localhost:8080/api/citas/${id}`, data)
           .then(function (respuesta) {
             var hasError = respuesta.data.status;
             var msj = respuesta.data.message;
-
             let successMessage;
-
             if (nuevoStatus) {
               successMessage = 'Cita atendida correctamente';
             } else {
               successMessage = 'Cita Error';
             }
-
             Swal.fire({
               icon: 'success',
               iconColor: '#58BEC4',
@@ -214,7 +153,6 @@ const CitaScreen = () => {
               showConfirmButton: false,
               timer: 2000
             });
-
             if (hasError === false) {
               cargarCitas();
               handleClose();
@@ -238,11 +176,10 @@ const CitaScreen = () => {
   }
 
   ///BUSCAR 
+  const [searchTerm, setSearchTerm] = useState("");
   const filteredData = citas.filter(item =>
-    item.fecha.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.numeroVentanilla.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.montoPago.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    item.documentosAnexos && item.documentosAnexos.toLowerCase().includes(searchTerm.toLowerCase())
+  );  
 
   /// VALIDAR CON DEFAULT
   const [validated, setValidated] = useState(false);
@@ -287,11 +224,11 @@ const CitaScreen = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredData && filteredData.length === 0 ? (
+                {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan="9" style={{ textAlign: 'center' }}>No hay registros</td>
                   </tr>
-                ) : (filteredData && filteredData.map((item) => (
+                ) : (filteredData.map((item) => (
                   <tr key={item.id} style={{ border: 'none' }} className='mb-4'>
                     {/*<td className="rounded-border">{item.id}</td>*/}
                     <td className="rounded-border">{item.numeroVentanilla}</td>

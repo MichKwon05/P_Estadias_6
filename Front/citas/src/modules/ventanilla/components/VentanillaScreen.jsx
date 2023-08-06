@@ -26,18 +26,28 @@ const VentanillaScreen = () => {
   const [status, setStatus] = useState('');
   const [changePassword, setChangePassword] = useState('');
 
-  const [adminId, setAdminId] = useState(1);
+  const [adminId, setAdminId] = useState(localStorage.getItem('sesionId'));
 
   useEffect(() => {
+    sesionActiva();
     cargarVentanilla();
     cargarAdmin();
   }, []);
+
+  const sesionActiva = () => {
+    const id = localStorage.getItem("sesionId")
+    const rol = localStorage.getItem("rol")
+
+    if (id === null || rol != 'admin') {
+        navigate('/login');
+    }
+}
 
   const cargarVentanilla = async () => {
     try {
       const respuesta = await axios.get(urlVenta);
       setVentanilla(respuesta.data.data);
-      console.log(respuesta.data.data)
+      //console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -48,8 +58,8 @@ const VentanillaScreen = () => {
   const cargarAdmin = async () => {
     try {
       const respuesta = await axios.get(`http://localhost:8080/api/administrador/`);
-      setAdmin(respuesta.data);
-      //console.log(respuesta.data)
+      setAdmin(respuesta.data.data);
+      //console.log(respuesta.data.data)
       //console.clear();
     } catch (error) {
       console.log('Error:', error.message);
@@ -64,7 +74,7 @@ const VentanillaScreen = () => {
   const handleClose = () => setShow(false);
 
   const handleShow = (mode, id, nombreVent, apePaternoVent, apeMaternoVent,
-    correoElectronico, pass, status) => {
+    correoElectronico, pass, status, changePassword) => {
     setId('');
     setNombreVent('');
     setApePaternoVent('');
@@ -87,7 +97,7 @@ const VentanillaScreen = () => {
       setStatus(status);
       setChangePassword(changePassword);
       setAdminId(adminId);
-      setMode(mode);
+      //setMode(mode);
     }
     /*window.setTimeout(function(){
         document.getElementById(`nombre`).focus();
@@ -342,8 +352,20 @@ const VentanillaScreen = () => {
                         <FeatherIcon
                           icon='edit'
                           style={{ color: 'black' }}
-                          onClick={() => handleShow('edit', item.id, item.nombreVent, item.apePaternoVent,
-                            item.apeMaternoVent, item.correoElectronico, item.pass, item.status, item.changePassword)}
+                          onClick={() => {
+                            if (item.status) {
+                              handleShow('edit', item.id, item.nombreVent, item.apePaternoVent,
+                                item.apeMaternoVent, item.correoElectronico, item.pass, item.status, item.changePassword);
+                            } else {
+                              Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops...',
+                                text: 'No se puede editar un elemento dado de baja',
+                                showConfirmButton: false,
+                                timer: 2000
+                              })
+                            }
+                          }}
                         />
                       </button>
                       {item.status ? (

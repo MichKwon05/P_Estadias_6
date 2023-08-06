@@ -35,7 +35,8 @@
     border-radius: 50%;
     background-color: #2A4172;
     /* Cambia el color de fondo a verde */
-    box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.381); /* Agrega un sombreado */
+    box-shadow: 2px 6px 10px rgba(0, 0, 0, 0.381);
+    /* Agrega un sombreado */
 }
 
 .inner-circle {
@@ -104,7 +105,7 @@
     margin-top: 20px;
 }
 
-/*loading*/
+/*loading error*/
 .custom-loader {
     width: 50px;
     height: 50px;
@@ -137,4 +138,43 @@
     }
 }
 
-/*Background*/
+/*loading carga*/
+.custom-loading {
+    width: 40px;
+    height: 40px;
+    color: #766DF4;
+    position: relative;
+    background: radial-gradient(10px, currentColor 94%, #0000);
+}
+
+.custom-loading:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(9px at bottom right, #0000 94%, currentColor) top left,
+        radial-gradient(9px at bottom left, #0000 94%, currentColor) top right,
+        radial-gradient(9px at top right, #0000 94%, currentColor) bottom left,
+        radial-gradient(9px at top left, #0000 94%, currentColor) bottom right;
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    animation: sp8 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+}
+
+@keyframes sp8 {
+    33% {
+        inset: -10px;
+        transform: rotate(0deg)
+    }
+
+    66% {
+        inset: -10px;
+        transform: rotate(90deg)
+    }
+
+    100% {
+        inset: 0;
+        transform: rotate(90deg)
+    }
+}
