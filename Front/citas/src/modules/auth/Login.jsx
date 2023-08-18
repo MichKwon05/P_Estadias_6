@@ -35,10 +35,10 @@ const Login = () => {
     if (localStorage.getItem('sesionId')) {
       switch (localStorage.getItem('rol')) {
         case 'admin':
-          navigate('/adminDashboard')
+          navigate();
           break;
         case 'ventanilla':
-          navigate('/ventanillaDashBoard')
+          navigateToVentanilla();
           break;
         default:
           break;
@@ -46,82 +46,115 @@ const Login = () => {
     }
   }
 
+  const navigateToAdmin = () => {
+    setIsLoading(true);
+    // Simulate a loading delay for better user experience
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate('/adminDashboard');
+    }, 1500);
+  }
+
+  const navigateToVentanilla = () => {
+    setIsLoading(true);
+    // Simulate a loading delay for better user experience
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate('/ventanillaDashBoard');
+    }, 1500);
+  }
+
   const buscarPersona = async () => {
     setIsLoading(true);
     let found = false;
-  
+
     try {
-        let usuario = null;
-        let rol = '';
-  
-        const adminResp = await fetch(`${baseUrl}administrador/`);
-        const adminData = await adminResp.json();
-        console.log("Administradores:", adminData.data);
-  
-        for (let index = 0; index < adminData.data.length; index++) {
-          const element = adminData.data[index];
-          if (element.correoAdmin === email && element.pass === password) {
+      let usuario = null;
+      let rol = '';
+
+      const adminResp = await fetch(`${baseUrl}administrador/`);
+      const adminData = await adminResp.json();
+
+      for (let index = 0; index < adminData.data.length; index++) {
+        const element = adminData.data[index];
+        if (element.correoAdmin === email && element.pass === password) {
+          usuario = element;
+          rol = 'admin';
+          found = true;
+        }
+      }
+
+      if (!found) {
+        const ventanillasResp = await fetch(`${baseUrl}ventanillas/`);
+        const ventanillasData = await ventanillasResp.json();
+
+        for (let index = 0; index < ventanillasData.data.length; index++) {
+          const element = ventanillasData.data[index];
+          if (element.correoElectronico === email && element.pass === password) {
             usuario = element;
-            rol = 'admin';
+            rol = 'ventanilla';
             found = true;
           }
         }
-  
-        if (!found) {
-          const ventanillasResp = await fetch(`${baseUrl}ventanillas/`);
-          const ventanillasData = await ventanillasResp.json();
-          console.log("Ventanillas:", ventanillasData.data);
-  
-          for (let index = 0; index < ventanillasData.data.length; index++) {
-            const element = ventanillasData.data[index];
-            if (element.correoElectronico === email && element.pass === password) {
-              usuario = element;
-              rol = 'ventanilla';
-              found = true;
-            }
+      }
+
+      if (!found) {
+        const solicitantesResp = await fetch(`${baseUrl}solicitantes/`);
+        const solicitantesData = await solicitantesResp.json();
+
+        for (let index = 0; index < solicitantesData.data.length; index++) {
+          const element = solicitantesData.data[index];
+          if (element.correoElectronico === email && element.pass === password) {
+            found = true;
           }
         }
-  
-        if (!found) {
-          const solicitantesResp = await fetch(`${baseUrl}solicitantes/`);
-          const solicitantesData = await solicitantesResp.json();
-          console.log("Solicitantes:", solicitantesData.data);
-  
-          for (let index = 0; index < solicitantesData.data.length; index++) {
-            const element = solicitantesData.data[index];
-            if (element.correoElectronico === email && element.pass === password) {
-              found = true;
-            }
-          }
+      }
+
+      if (!found) {
+        let errorMessage = "Usuario no encontrado";
+
+        // Verificar si el correo electrónico es incorrecto
+        const userWithEmail = adminData.data.find(element => element.correoAdmin === email);
+        if (!userWithEmail) {
+          errorMessage = "Correo electrónico incorrecto";
         }
-  
-        if (!found) {
+
+        const userWithPassword = adminData.data.find(element => element.pass === email);
+        if (!userWithPassword) {
+          errorMessage = "Contraseña incorrecta";
+        }
+
+        Swal.fire({
+          icon: 'error',
+          iconColor: '#2A4172',
+          title: errorMessage,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } else {
+        if (rol === 'admin') {
+          localStorage.setItem("rol", rol);
+          localStorage.setItem("sesionId", usuario.id);
+          navigateToAdmin();
+        } else if (rol === 'ventanilla') {
+          localStorage.setItem("rol", rol);
+          localStorage.setItem("sesionId", usuario.id);
+          navigateToVentanilla();
+        } else {
           Swal.fire({
             icon: 'error',
-            title: 'Usuario no encontrado',
+            title: 'Acceso denegado',
+            text: 'Solicitantes no pueden entrar',
             showConfirmButton: false,
             timer: 1500
           });
-        } else {
-          localStorage.setItem("rol", rol);
-          localStorage.setItem("sesionId", usuario.id);
-          let dato = localStorage.getItem("sesionUser");
-  
-          switch (rol) {
-            case 'admin':
-              navigate('/adminDashboard');
-              break;
-            case 'ventanilla':
-              navigate('/ventanillaDashBoard');
-              break;
-            default:
-              break;
-          }
         }
+      }
     } catch (error) {
       console.error('Error en la solicitud de datos:', error);
       Swal.fire({
         icon: 'error',
+        iconColor: '#2A4172',
         title: 'Ocurrió un error al buscar el usuario',
         text: 'Por favor, intenta nuevamente más tarde.',
         showConfirmButton: false,
@@ -132,16 +165,7 @@ const Login = () => {
     }
   }
 
-  const validate = () => {
-    let result = true;
-    if (email === ' ' || email === null || email === '') {
-      result = false;
-    }
-    if (password === ' ' || password === null || password === '') {
-      result = false;
-    }
-    return result;
-  }
+
 
   return (
     <Container fluid style={{
@@ -195,17 +219,16 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input_field"
-              
             />
           </div>
         </Form.Group>
 
         {/* Sign In Button */}
-        <button title="Sign In" type="submit" className="sign-in_btn"
+        <button title="Sign In" type="button" className="sign-in_btn"
           onClick={buscarPersona}
-          disabled={!email || !password}
-          >
-          <span>Iniciar Sesión</span>
+          disabled={isLoading || !email || !password}
+        >
+          {isLoading ? '. . .' : 'Iniciar sesión'}
         </button>
         {/*<a href="/changePassword" className="mb-4" style={{ color: '#264B99' }}>¿Olvidaste tu contraseña?</a>*/}
       </Form>

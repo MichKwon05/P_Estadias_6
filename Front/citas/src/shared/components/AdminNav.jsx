@@ -25,7 +25,7 @@ const AdminNav = () => {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
-    navigate('/');
+    navigate('/adminDashboard/');
   };
 
   const logOut = () => {

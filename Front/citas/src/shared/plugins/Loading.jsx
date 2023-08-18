@@ -1,10 +1,10 @@
 import React from 'react'
 import Container from 'react-bootstrap/Container';
-import '../../App.css'
+import '../plugins/Screens.css'
 
 const Loading = () => {
     return (
-        <div class="custom-loading"></div>
+        <div className="custom-loading"></div>
     )
 }
 

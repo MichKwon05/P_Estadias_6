@@ -14,7 +14,7 @@ const VentanillaRoutez = () => {
             <VentanillaNav />
             <Routes>
                 <Route path="/" element={<MainVentanilla />} />
-                <Route path="homeVentanilla" element={<MainVentanilla />} />
+                {/*<Route path="homeVentanilla" element={<MainVentanilla />} />*/}
                 <Route path="/profileVentanilla" element={<ProfileVentanilla />} />
                 <Route path="/cita" element={<CitaScreen />} />
                 <Route path="/horario" element={<HoraVentScreen />} />

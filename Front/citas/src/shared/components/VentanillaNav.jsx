@@ -23,7 +23,7 @@ const VentanillaNav = () => {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
-    navigate('/');
+    navigate('/ventanillaDashBoard/');
   };
 
   const logOut = () => {
